@@ -5,6 +5,7 @@ import { createStackNavigator } from "react-navigation";
 
 import Screen from './Screens/Screen';
 import Swiper from './Screens/Swiper';
+import EditInfo from './Screens/EditInfo'
 import HomeScreen from './Screens/HomeScreen';
 
 
@@ -16,6 +17,7 @@ class Home extends Component<{}> {
   render() {
     return (
       <View style={styles.container}>
+        <StatusBar backgroundColor="blue" barStyle="light-content"/>
         <Screen navigation={this.props.navigation} />
       </View>
     );
@@ -36,7 +38,10 @@ export default Screens = createStackNavigator({
   HomeScreen: {
     screen: HomeScreen,
   },
+  EditInfo: {
+    screen: EditInfo,
 
+  },
 });
 
 const styles = StyleSheet.create({

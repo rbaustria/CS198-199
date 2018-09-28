@@ -13,7 +13,7 @@ export default class HomeScreen extends Component<{}> {
     return (
       <View style={styles.container}>
         <StatusBar barStyle = "dark-content" hidden = {false}/>
-        <Text style={styles.welcome}>TESTfsfsls.</Text>
+        <Text style={styles.welcome}>Homescreen.</Text>
       </View>
     );
   }

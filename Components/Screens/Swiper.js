@@ -16,6 +16,7 @@ import {
 
 import { createStackNavigator } from "react-navigation";
 import AppleHealthKit from 'rn-apple-healthkit';
+import EditInfo from './EditInfo';
 
 
 // Detect screen width and height
@@ -53,15 +54,7 @@ export default class OnboardingScreens extends Component {
   state = this.initState(this.props);
 
   navigateToNextScreen = () => {
-    this.props.navigation.navigate("HomeScreen")
-    AppleHealthKit.getBiologicalSex(null, (err: Object, results: Object) => {
-      if (err) {
-        // this doesnt work. should have a checker if user doesnt have data
-        // move this to another function to get the value after user allowed
-        return;
-      }
-      // else give the data here
-    });
+    this.props.navigation.navigate("EditInfo")
   }
 
   // _handleHealthKitError(err, str){
@@ -69,6 +62,7 @@ export default class OnboardingScreens extends Component {
   // }
 
   onGetHealthInfo = () => {
+
     if (Platform.OS === "android") {
       // add GoogleFit access perms
     }
