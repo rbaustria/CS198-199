@@ -13,6 +13,10 @@ import { createStackNavigator } from "react-navigation";
 import Swiper from "./Swiper";
 
 export default class Screen extends Component {
+  static navigationOptions = {
+    headerMode: 'none',
+    header: null,
+  };
   render() {
     return (
       <Swiper navigation={this.props.navigation}>
@@ -67,4 +71,5 @@ const styles = StyleSheet.create({
     textAlign: "center"
   }
 });
+
 AppRegistry.registerComponent("Screen", () => Screen);

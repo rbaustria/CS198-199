@@ -11,8 +11,10 @@
     "react-native": "0.57.0",
     "react-native-app-intro": "^1.1.5",
     "react-native-app-intro-v2": "^2.1.2",
+    "react-native-permissions": "^1.1.1",
     "react-native-vector-icons": "^5.0.0",
-    "react-navigation": "^2.16.0"
+    "react-navigation": "^2.16.0",
+    "rn-apple-healthkit": "^0.6.3"
   },
   "devDependencies": {
     "babel-jest": "23.6.0",

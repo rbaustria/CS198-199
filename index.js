@@ -4,7 +4,7 @@ import {
   StatusBar,      // Allows to hide the satatus bar
 } from 'react-native';
 import App from './Components/App';
-//import SplashScreen from './Components/SplashScreen';
+import SplashScreen from './Components/SplashScreen';
 
 export default class Sugar extends Component {
   componentDidMount() {
@@ -13,8 +13,8 @@ export default class Sugar extends Component {
   }
   render() {
     return (
-      <App />
-      //<SplashScreen/>
+      //<App />
+      <SplashScreen/>
     );
   }
 }

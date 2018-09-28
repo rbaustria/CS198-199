@@ -15,19 +15,19 @@ import {
 } from "react-native";
 
 import { createStackNavigator } from "react-navigation";
+import AppleHealthKit from 'rn-apple-healthkit';
+
 
 // Detect screen width and height
 const { width, height } = Dimensions.get("window");
 
 import Button from "./Button";
-import HomeScreen from "./HomeScreen";
+
 
 export default class OnboardingScreens extends Component {
   static navigationOptions = {
-    headerStyle: {
-      backgroundColor: "#16a085",
-      elevation: null
-    }
+    headerMode: 'none',
+    headerLeft: null,
   };
   // Props for ScrollView component
   static defaultProps = {
@@ -52,6 +52,50 @@ export default class OnboardingScreens extends Component {
 
   state = this.initState(this.props);
 
+  navigateToNextScreen = () => {
+    this.props.navigation.navigate("HomeScreen")
+    AppleHealthKit.getBiologicalSex(null, (err: Object, results: Object) => {
+      if (err) {
+        // this doesnt work. should have a checker if user doesnt have data
+        // move this to another function to get the value after user allowed
+        return;
+      }
+      // else give the data here
+    });
+  }
+
+  // _handleHealthKitError(err, str){
+  //
+  // }
+
+  onGetHealthInfo = () => {
+    if (Platform.OS === "android") {
+      // add GoogleFit access perms
+    }
+    else {
+      // For Healthkit
+      // According to Apple's privacy policy, we can't ask to allow permissions again, user must manually allow the perms.
+      let options = {
+            permissions: {
+                read: ["Weight", "BiologicalSex", "DateOfBirth"],
+            }
+        };
+
+        AppleHealthKit.initHealthKit(options: Object, (err: string, results: Object) => {
+            if (err) {
+                console.log("error initializing Healthkit: ", err);
+                return;
+            }
+            // Healthkit is initialized...
+            // now safe to read and write Healthkit data...
+        });
+        this.testfun = this.navigateToNextScreen.bind(this)
+        setTimeout(this.navigateToNextScreen, 1000)
+        //this.testfun()
+
+
+    }
+  }
   /**
        * Initialize the state
        */
@@ -255,10 +299,10 @@ export default class OnboardingScreens extends Component {
         {lastScreen ? (
           // Show this button on the last screen
           // TODO: Add a handler that would send a user to your app after onboarding is complete
-          
+
           <Button
-            text="Start Now"
-            onPress={() => this.props.navigation.navigate("HomeScreen")}
+            text="Get Started"
+            onPress={this.onGetHealthInfo}
           />
         ) : (
           // Or this one otherwise
@@ -325,7 +369,7 @@ const styles = StyleSheet.create({
   },
   // Active dot
   activeDot: {
-    backgroundColor: "#FFFFFF"
+    backgroundColor: "#78a85d"
   },
   // Button wrapper
   buttonWrapper: {
