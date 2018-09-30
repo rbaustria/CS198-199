@@ -4,7 +4,7 @@
  * pagination indicators and a button to swipe through screens
  * or to get out of the flow when the last screen is reached
  */
-import React, { Component } from "react";
+import React, { Component } from 'react';
 import {
   AppRegistry,
   Dimensions, // Detects screen dimensions
@@ -12,17 +12,17 @@ import {
   ScrollView, // Handles navigation between screens
   StyleSheet, // CSS-like styles
   View // Container component
-} from "react-native";
+} from 'react-native';
 
-import { createStackNavigator } from "react-navigation";
+import { createStackNavigator } from 'react-navigation';
 import AppleHealthKit from 'rn-apple-healthkit';
 import EditInfo from './EditInfo';
 
 
 // Detect screen width and height
-const { width, height } = Dimensions.get("window");
+const { width, height } = Dimensions.get('window');
 
-import Button from "./Button";
+import Button from './Button';
 
 
 export default class OnboardingScreens extends Component {
@@ -54,16 +54,13 @@ export default class OnboardingScreens extends Component {
   state = this.initState(this.props);
 
   navigateToNextScreen = () => {
-    this.props.navigation.navigate("EditInfo")
+    this.props.navigation.navigate('EditInfo')
   }
 
-  // _handleHealthKitError(err, str){
-  //
-  // }
 
   onGetHealthInfo = () => {
 
-    if (Platform.OS === "android") {
+    if (Platform.OS === 'android') {
       // add GoogleFit access perms
     }
     else {
@@ -71,13 +68,13 @@ export default class OnboardingScreens extends Component {
       // According to Apple's privacy policy, we can't ask to allow permissions again, user must manually allow the perms.
       let options = {
             permissions: {
-                read: ["Weight", "BiologicalSex", "DateOfBirth"],
+                read: ['Weight', 'BiologicalSex', 'DateOfBirth'],
             }
         };
 
         AppleHealthKit.initHealthKit(options: Object, (err: string, results: Object) => {
             if (err) {
-                console.log("error initializing Healthkit: ", err);
+                console.log('error initializing Healthkit: ', err);
                 return;
             }
             // Healthkit is initialized...
@@ -213,7 +210,7 @@ export default class OnboardingScreens extends Component {
     this.internals.isScrolling = true;
 
     // Trigger onScrollEnd manually on android
-    if (Platform.OS === "android") {
+    if (Platform.OS === 'android') {
       setImmediate(() => {
         this.onScrollEnd({
           nativeEvent: {
@@ -274,7 +271,7 @@ export default class OnboardingScreens extends Component {
     }
 
     return (
-      <View pointerEvents="none" style={[styles.pagination, styles.fullScreen]}>
+      <View pointerEvents='none' style={[styles.pagination, styles.fullScreen]}>
         {dots}
       </View>
     );
@@ -287,7 +284,7 @@ export default class OnboardingScreens extends Component {
     const lastScreen = this.state.index === this.state.total - 1;
     return (
       <View
-        pointerEvents="box-none"
+        pointerEvents='box-none'
         style={[styles.buttonWrapper, styles.fullScreen]}
       >
         {lastScreen ? (
@@ -295,12 +292,12 @@ export default class OnboardingScreens extends Component {
           // TODO: Add a handler that would send a user to your app after onboarding is complete
 
           <Button
-            text="Get Started"
+            text='Get Started'
             onPress={this.onGetHealthInfo}
           />
         ) : (
           // Or this one otherwise
-          <Button text="Continue" onPress={() => this.swipe()} />
+          <Button text='Continue' onPress={() => this.swipe()} />
         )}
       </View>
     );
@@ -331,28 +328,28 @@ const styles = StyleSheet.create({
   },
   // Main container
   container: {
-    backgroundColor: "transparent",
-    position: "relative"
+    backgroundColor: 'transparent',
+    position: 'relative'
   },
   // Slide
   slide: {
-    backgroundColor: "transparent"
+    backgroundColor: 'transparent'
   },
   // Pagination indicators
   pagination: {
-    position: "absolute",
+    position: 'absolute',
     bottom: 110,
     left: 0,
     right: 0,
     flex: 1,
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "flex-end",
-    backgroundColor: "transparent"
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'flex-end',
+    backgroundColor: 'transparent'
   },
   // Pagination dot
   dot: {
-    backgroundColor: "rgba(0,0,0,.25)",
+    backgroundColor: 'rgba(0,0,0,.25)',
     width: 8,
     height: 8,
     borderRadius: 4,
@@ -363,20 +360,22 @@ const styles = StyleSheet.create({
   },
   // Active dot
   activeDot: {
-    backgroundColor: "#78a85d"
+    //backgroundColor: '#78a85d'
+    //backgroundColor: '#02aab0'
+    backgroundColor: '#21B6A8'
   },
   // Button wrapper
   buttonWrapper: {
-    backgroundColor: "transparent",
-    flexDirection: "column",
-    position: "absolute",
+    backgroundColor: 'transparent',
+    flexDirection: 'column',
+    position: 'absolute',
     bottom: 0,
     left: 0,
     flex: 1,
     paddingHorizontal: 10,
     paddingVertical: 40,
-    justifyContent: "flex-end",
-    alignItems: "center"
+    justifyContent: 'flex-end',
+    alignItems: 'center'
   }
 });
-AppRegistry.registerComponent("OnboardingScreens", () => OnboardingScreens);
+AppRegistry.registerComponent('OnboardingScreens', () => OnboardingScreens);

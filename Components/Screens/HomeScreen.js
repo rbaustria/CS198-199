@@ -1,6 +1,6 @@
-import React, { Component } from "react";
-import { AppRegistry, StyleSheet, Text, View, StatusBar } from "react-native";
-import { createStackNavigator } from "react-navigation";
+import React, { Component } from 'react';
+import { AppRegistry, StyleSheet, Text, View, StatusBar } from 'react-native';
+import { createStackNavigator } from 'react-navigation';
 
 import Screen from './Screen';
 
@@ -12,8 +12,8 @@ export default class HomeScreen extends Component<{}> {
   render() {
     return (
       <View style={styles.container}>
-        <StatusBar barStyle = "dark-content" hidden = {false}/>
-        <Text style={styles.welcome}>Homescreen.</Text>
+        <StatusBar barStyle = 'dark-content' hidden = {false}/>
+        <Text style={styles.welcome}>Homescreennnnn.</Text>
       </View>
     );
   }
@@ -22,20 +22,20 @@ export default class HomeScreen extends Component<{}> {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "#F5FCFF"
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#F5FCFF'
   },
   welcome: {
     fontSize: 20,
-    textAlign: "center",
+    textAlign: 'center',
     margin: 10
   },
   instructions: {
-    textAlign: "center",
-    color: "#333333",
+    textAlign: 'center',
+    color: '#333333',
     marginBottom: 5
   }
 });
 
-AppRegistry.registerComponent("HomeScreen", () => HomeScreen);
+AppRegistry.registerComponent('HomeScreen', () => HomeScreen);

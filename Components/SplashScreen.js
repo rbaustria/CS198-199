@@ -3,11 +3,12 @@
 // Otherwise go to the Homepage.
 
 
-import React, { Component, Text} from "react";
-import { AsyncStorage } from "react-native";
+import React, { Component, Text} from 'react';
+import { AsyncStorage } from 'react-native';
 
 import App from './App';
 import HomeScreen from './Screens/HomeScreen';
+import EditInfo from './Screens/EditInfo';
 
 export default class SplashScreen extends Component {
 
@@ -17,13 +18,13 @@ export default class SplashScreen extends Component {
     }
 
     componentDidMount() {
-      AsyncStorage.getItem("alreadyLaunched").then(value => {
+      AsyncStorage.getItem('alreadyLaunched').then(value => {
             if(value == null){
-                 AsyncStorage.setItem('alreadyLaunched', "true"); // No need to wait for `setItem` to finish, although you might want to handle errors
-                 this.setState({firstLaunch: "true"});
+                 AsyncStorage.setItem('alreadyLaunched', 'true'); // No need to wait for `setItem` to finish, although you might want to handle errors
+                 this.setState({firstLaunch: 'true'});
             }
             else{
-                 this.setState({firstLaunch: "false"});
+                 this.setState({firstLaunch: 'false'});
             }})
     }
 
@@ -32,12 +33,11 @@ export default class SplashScreen extends Component {
       if (this.state.firstLaunch == null) {
           return null;
       }
-      else if (this.state.firstLaunch == "true") {
+      else if (this.state.firstLaunch == 'true') {
           return <App/>;
       }
       else {
-          //return <HomeScreen/>;
-          return <App/>;
+          return <HomeScreen/>;
       }
     }
 }
