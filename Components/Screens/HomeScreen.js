@@ -1,59 +1,55 @@
 import React, { Component } from 'react';
-import { AppRegistry, StyleSheet, Text, View, StatusBar } from 'react-native';
+import { AppRegistry, StyleSheet, Text, View, StatusBar, Header } from 'react-native';
 import { createMaterialBottomTabNavigator } from 'react-navigation-material-bottom-tabs';
 import Icon from 'react-native-vector-icons/Ionicons.js';
 
-import Screen from './Screen';
+import Home from './Profile';
+import StreakScreen from './StreakScreen';
+import ReadingScreen from './ReadingScreen';
+import GraphScreen from './GraphScreen';
+import ShareDataScreen from './ShareDataScreen';
 
-class Home extends Component {
-  render() {
-    return (
-      <View style= {styles.container}>
-        <Text style= {styles.welcome}> HOME! </Text>
-      </View>
-    );
-  }
-}
 
-class StreakScreen extends Component {
-  render() {
-    return (
-      <View style= {styles.container}>
-        <Text style= {styles.welcome}> STREAK! </Text>
-      </View>
-    );
-  }
-}
-
-class ReadingScreen extends Component {
-  render() {
-    return (
-      <View style= {styles.container}>
-        <Text style= {styles.welcome}> HOME! </Text>
-      </View>
-    );
-  }
-}
-
-class GraphScreen extends Component {
-  render() {
-    return (
-      <View style= {styles.container}>
-        <Text style= {styles.welcome}> HOME! </Text>
-      </View>
-    );
-  }
-}
-
-class ShareDataScreen extends Component {
-  render() {
-    return (
-      <View style= {styles.container}>
-        <Text style= {styles.welcome}> HOME! </Text>
-      </View>
-    );
-  }
-}
+//
+// class StreakScreen extends Component {
+//   render() {
+//     return (
+//       <View style= {styles.container}>
+//         <Text style= {styles.welcome}> STREAK! </Text>
+//       </View>
+//     );
+//   }
+// }
+//
+// class ReadingScreen extends Component {
+//   render() {
+//     return (
+//       <View style= {styles.container}>
+//         <Text style= {styles.welcome}> HOME! </Text>
+//       </View>
+//     );
+//   }
+// }
+//
+// class GraphScreen extends Component {
+//   render() {
+//     return (
+//       <View style= {styles.container}>
+//         <Text style= {styles.welcome}> HOME! </Text>
+//       </View>
+//     );
+//   }
+// }
+//
+// class ShareDataScreen extends Component {
+//   render() {
+//     return (
+//       <View style= {styles.container}>
+//         <Text style= {styles.welcome}> HOME! </Text>
+//       </View>
+//     );
+//   }
+// }
 
 export default createMaterialBottomTabNavigator ({
   Home: { screen: Home,
@@ -61,11 +57,12 @@ export default createMaterialBottomTabNavigator ({
       tabBarLabel: 'Home',
       tabBarIcon:({tintColor}) => (
         <Icon name= 'ios-home' color= {tintColor} size= {24} />
-      )
+      ),
     }
   },
-  Streak: { screen: StreakScreen,
+  StreakScreen: { screen: StreakScreen,
     navigationOptions: {
+      title: 'STREAK',
       tabBarLabel: 'Streaks',
       tabBarIcon:({tintColor}) => (
         <Icon name= 'ios-star' color= {tintColor} size= {24} />
@@ -97,7 +94,7 @@ export default createMaterialBottomTabNavigator ({
     }
   }
 }, {
-  activeTintColor: 'blue',
+  activeTintColor: '#21B6A8',
   barStyle: {
     backgroundColor: 'white',
   },
@@ -117,4 +114,4 @@ const styles = StyleSheet.create({
   },
 });
 
-//AppRegistry.registerComponent('HomeScreen', () => HomeScreen);
+AppRegistry.registerComponent('HomeScreen', () => HomeScreen);

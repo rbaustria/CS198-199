@@ -8,6 +8,7 @@ import {
 
 import Octicons from 'react-native-vector-icons/Octicons.js';
 import LinearGradient from 'react-native-linear-gradient';
+import { createStackNavigator } from 'react-navigation';
 
 export default class EditInfoHeader extends Component {
   render () {
@@ -54,7 +55,7 @@ const styles = StyleSheet.create({
   linearGradient: {
     flex: 1,
     alignSelf: 'stretch',
-    borderRadius: 5,
+    //borderRadius: 5,
     alignItems: 'center',
     paddingTop: 30,
     paddingBottom: 50,

@@ -28,7 +28,7 @@ import Button from './Button';
 export default class OnboardingScreens extends Component {
   static navigationOptions = {
     headerMode: 'none',
-    headerLeft: null,
+    header: null
   };
   // Props for ScrollView component
   static defaultProps = {
@@ -82,8 +82,6 @@ export default class OnboardingScreens extends Component {
         });
         this.testfun = this.navigateToNextScreen.bind(this)
         setTimeout(this.navigateToNextScreen, 1000)
-        //this.testfun()
-
 
     }
   }

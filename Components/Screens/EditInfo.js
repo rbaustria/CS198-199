@@ -9,12 +9,14 @@ import {
   SafeAreaView,
   TextInput,
   Dimensions,
-  Picker
+  Picker,
+  Button,
+  TouchableOpacity
 } from 'react-native';
 import { createStackNavigator } from 'react-navigation';
 import AppleHealthKit from 'rn-apple-healthkit';
 
-import Button from './Button';
+//import Button from './Button';
 import Screen from './Screen';
 import HomeScreen from './HomeScreen';
 import EditInfoHeader from './EditInfoHeader';
@@ -26,13 +28,16 @@ const { width: WIDTH } = Dimensions.get('window')
 export default class EditInfo extends Component<{}> {
   static navigationOptions = {
     headerMode: 'none',
-    header: null,
+    headerLeft: null
   };
 
-  constructor(){
-  	super();
+  constructor(props){
+  	super(props);
   	this.state={
-  		PickerValue:''
+  		PickerValue:'',
+      name: '',
+      nameValidate: false,
+      buttondisabled: true
 		}
   };
 
@@ -65,6 +70,19 @@ export default class EditInfo extends Component<{}> {
     this.props.navigation.navigate('HomeScreen')
   }
 
+  validateName(name) {
+    characters = /^[a-zA-Z]+$/
+    if (characters.test(name) && name != null) {
+      this.setState({
+        nameValidate: true
+      })
+    }
+    else {
+      this.setState({
+        nameValidate: false
+      })
+    }
+  }
 
   render() {
     return (
@@ -77,6 +95,7 @@ export default class EditInfo extends Component<{}> {
         <View style= {styles.inputcontainer}>
           <TextInput
             style= {styles.textinput}
+            onChangeText= {(name)=> this.validateName(name)}
             placeholder= {'Name'}
             placeholderTextcolor= {'rbga(255,255,255,0.7)'}
           />
@@ -85,6 +104,7 @@ export default class EditInfo extends Component<{}> {
         <View style= {styles.inputcontainer}>
           <Text style= {styles.label}>How many times a day do you check your blood sugar?</Text>
         </View>
+
         <View style= {styles.pickercontainer}>
           <Picker
             selectedValue={this.state.language}
@@ -97,7 +117,11 @@ export default class EditInfo extends Component<{}> {
         </View>
 
         <View style= {styles.container}>
-          <Button onPress={this.collectHealthInfo} text='Done'/>
+          <TouchableOpacity disabled= {!this.state.nameValidate ? true : false} onPress={this.collectHealthInfo}>
+            <View style={styles.button}>
+              <Text style= {styles.buttontext}>DONE</Text>
+            </View>
+          </TouchableOpacity>
         </View>
       </SafeAreaView>
 
@@ -137,6 +161,17 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#F5FCFF'
   },
+  textinputerror: {
+    width: WIDTH - 55,
+    height: 45,
+    fontSize: 16,
+    fontFamily: 'Avenir',
+    paddingLeft: 20,
+    backgroundColor: '#ecf7f9',
+    color: '#859593',
+    borderColor: '#FF9494',
+    borderWidth: 2
+  },
   textinput: {
     width: WIDTH - 55,
     height: 45,
@@ -144,7 +179,7 @@ const styles = StyleSheet.create({
     fontFamily: 'Avenir',
     paddingLeft: 20,
     backgroundColor: '#ecf7f9',
-    color: '#d3d3d3',
+    color: '#859593',
     marginHorizontal: 25,
     shadowColor: '#d3d3d3',
     shadowOffset: { width: 0, height: 6 },
@@ -170,8 +205,25 @@ const styles = StyleSheet.create({
     textAlign: 'left',
     paddingLeft: 20,
     paddingRight: 20
-  }
+  },
+  button: {
+    borderRadius: 50, // Rounded border
+    borderWidth: 2, // 2 point border widht
+    //borderColor: "#128a08", // White colored border
+    //borderColor: '#02aab0',
+    borderColor: '#21B6A8',
+    paddingHorizontal: 50, // Horizontal padding
+    paddingVertical: 10 // Vertical padding
 
+  },
+  // Button text
+  buttontext: {
+    //color: "#128a08",
+    //color: '#02aab0',
+    color: '#21B6A8',
+    fontWeight: "bold",
+    fontFamily: "Avenir"
+  }
 });
 
 AppRegistry.registerComponent('EditInfo', () => EditInfo);

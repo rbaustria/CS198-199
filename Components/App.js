@@ -10,10 +10,6 @@ import HomeScreen from './Screens/HomeScreen';
 
 
 class Home extends Component<{}> {
-  static navigationOptions = {
-    headerMode: 'none',
-    header: null,
-  };
   render() {
     return (
       <View style={styles.container}>
@@ -28,19 +24,42 @@ class Home extends Component<{}> {
 export default Screens = createStackNavigator({
   Home: {
     screen: Home,
+    navigationOptions: {
+      headerMode: 'none',
+      header: null,
+    },
   },
   Screen: {
     screen: Screen,
+    navigationOptions: {
+      headerMode: 'none',
+      header: null,
+      headerLeft: null
+    },
   },
   Swiper: {
     screen: Swiper,
+    navigationOptions: {
+      headerMode: 'none',
+      header: null,
+      headerLeft: null
+    },
   },
   HomeScreen: {
     screen: HomeScreen,
+    navigationOptions: {
+      headerMode: 'none',
+      header: null,
+      headerLeft: null
+    },
   },
   EditInfo: {
     screen: EditInfo,
-
+    navigationOptions: {
+      headerMode: 'none',
+      header: null,
+      headerLeft: null,
+    },
   },
 });
 
