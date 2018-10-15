@@ -1,58 +1,19 @@
 import React, { Component } from 'react';
-import { AppRegistry, StyleSheet, Text, View, StatusBar, Header } from 'react-native';
+import { AppRegistry, StyleSheet, Text, View, StatusBar} from 'react-native';
 import { createMaterialBottomTabNavigator } from 'react-navigation-material-bottom-tabs';
 import Icon from 'react-native-vector-icons/Ionicons.js';
 
-import Home from './Profile';
+import Profile from './Profile';
 import StreakScreen from './StreakScreen';
 import ReadingScreen from './ReadingScreen';
 import GraphScreen from './GraphScreen';
 import ShareDataScreen from './ShareDataScreen';
 
 
-//
-// class StreakScreen extends Component {
-//   render() {
-//     return (
-//       <View style= {styles.container}>
-//         <Text style= {styles.welcome}> STREAK! </Text>
-//       </View>
-//     );
-//   }
-// }
-//
-// class ReadingScreen extends Component {
-//   render() {
-//     return (
-//       <View style= {styles.container}>
-//         <Text style= {styles.welcome}> HOME! </Text>
-//       </View>
-//     );
-//   }
-// }
-//
-// class GraphScreen extends Component {
-//   render() {
-//     return (
-//       <View style= {styles.container}>
-//         <Text style= {styles.welcome}> HOME! </Text>
-//       </View>
-//     );
-//   }
-// }
-//
-// class ShareDataScreen extends Component {
-//   render() {
-//     return (
-//       <View style= {styles.container}>
-//         <Text style= {styles.welcome}> HOME! </Text>
-//       </View>
-//     );
-//   }
-// }
+
 
 export default createMaterialBottomTabNavigator ({
-  Home: { screen: Home,
+  Profile: { screen: Profile,
     navigationOptions: {
       tabBarLabel: 'Home',
       tabBarIcon:({tintColor}) => (
@@ -62,7 +23,7 @@ export default createMaterialBottomTabNavigator ({
   },
   StreakScreen: { screen: StreakScreen,
     navigationOptions: {
-      title: 'STREAK',
+      title: 'Streak',
       tabBarLabel: 'Streaks',
       tabBarIcon:({tintColor}) => (
         <Icon name= 'ios-star' color= {tintColor} size= {24} />
@@ -96,7 +57,12 @@ export default createMaterialBottomTabNavigator ({
 }, {
   activeTintColor: '#21B6A8',
   barStyle: {
-    backgroundColor: 'white',
+    backgroundColor: '#f6f4f5',
+    shadowColor: '#d3d3d3',
+    shadowOffset: { width: 0, height: 5 },
+    shadowOpacity: 0.8,
+    shadowRadius: 2,
+    elevation: 1
   },
 })
 

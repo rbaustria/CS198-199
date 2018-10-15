@@ -13,7 +13,7 @@ class Home extends Component<{}> {
   render() {
     return (
       <View style={styles.container}>
-        <StatusBar backgroundColor='blue' barStyle='light-content'/>
+        <StatusBar barStyle='light-content' hidden= {false}/>
         <Screen navigation={this.props.navigation} />
       </View>
     );

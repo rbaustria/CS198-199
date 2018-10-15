@@ -11,19 +11,19 @@ import {
   Dimensions,
   Picker,
   Button,
-  TouchableOpacity
+  TouchableOpacity,
+  AsyncStorage
 } from 'react-native';
 import { createStackNavigator } from 'react-navigation';
 import AppleHealthKit from 'rn-apple-healthkit';
 
-//import Button from './Button';
 import Screen from './Screen';
 import HomeScreen from './HomeScreen';
 import EditInfoHeader from './EditInfoHeader';
 import Octicons from 'react-native-vector-icons/Octicons.js';
 
-
 const { width: WIDTH } = Dimensions.get('window')
+const key = '@MyApp:key';
 
 export default class EditInfo extends Component<{}> {
   static navigationOptions = {
@@ -34,12 +34,65 @@ export default class EditInfo extends Component<{}> {
   constructor(props){
   	super(props);
   	this.state={
-  		PickerValue:'',
       name: '',
+  		frequency: '',
+      storedName: '',
+      storedFrequency: '',
       nameValidate: false,
-      buttondisabled: true
 		}
+    this.persistData = this.persistData.bind(this);
+    this.clearData = this.clearData.bind(this);
   };
+
+  storeDataAndNextScreen () {
+    this.persistData();
+    this.props.navigation.navigate('HomeScreen');
+  }
+
+  persistData(){
+    let name = this.state.name
+    AsyncStorage.setItem('name', name).done();
+    this.setState({name: name, persistedName: name})
+  }
+
+  check(){
+
+    AsyncStorage.getItem('name').then((name) => {
+        this.setState({name: name, persistedName: name})
+    })
+
+  }
+
+  clearData(){
+    AsyncStorage.clear();
+    this.setState({persistedName: ''})
+  }
+
+  componentWillMount(){
+    this.check();
+  }
+
+  // onLoad = async () => {
+  //   try {
+  //     const storedName = await AsyncStorage.getItem(key);
+  //     this.setState({ storedName });
+  //   }
+  //   catch (error) {
+  //     Alert.alert('Error', 'There was an error while loading the data');
+  //   }
+  // }
+
+  // saveData () {
+  //   const { text } = this.state;
+  //   //console.warn("WOO");
+  //   try {
+  //     await AsyncStorage.setItem(key, text);
+  //     Alert.alert('Saved', 'Successfully saved.');
+  //   }
+  //   catch (error) {
+  //     Alert.alert('Error', 'There was an arror while saving the data');
+  //   }
+  // }
 
   collectHealthInfo = () => {
     if (Platform.OS === 'android') {
@@ -70,18 +123,21 @@ export default class EditInfo extends Component<{}> {
     this.props.navigation.navigate('HomeScreen')
   }
 
-  validateName(name) {
+  validateName(text) {
     characters = /^[a-zA-Z]+$/
-    if (characters.test(name) && name != null) {
+    if (characters.test(text) && text != null) {
       this.setState({
-        nameValidate: true
+        nameValidate: true,
+        name: text
       })
     }
     else {
+      console.warn('FAILE');
       this.setState({
         nameValidate: false
       })
     }
+
   }
 
   render() {
@@ -95,7 +151,7 @@ export default class EditInfo extends Component<{}> {
         <View style= {styles.inputcontainer}>
           <TextInput
             style= {styles.textinput}
-            onChangeText= {(name)=> this.validateName(name)}
+            onChangeText= {(name) => this.validateName(name)}
             placeholder= {'Name'}
             placeholderTextcolor= {'rbga(255,255,255,0.7)'}
           />
@@ -117,11 +173,16 @@ export default class EditInfo extends Component<{}> {
         </View>
 
         <View style= {styles.container}>
-          <TouchableOpacity disabled= {!this.state.nameValidate ? true : false} onPress={this.collectHealthInfo}>
+          <TouchableOpacity disabled= {!this.state.nameValidate ? true : false} onPress={this.storeDataAndNextScreen.bind(this)}>
             <View style={styles.button}>
               <Text style= {styles.buttontext}>DONE</Text>
             </View>
           </TouchableOpacity>
+
+          <View>
+            <Text>Data recorded:</Text>
+            <Text>Name: {this.state.persistedName}</Text>
+          </View>
         </View>
       </SafeAreaView>
 
@@ -188,10 +249,10 @@ const styles = StyleSheet.create({
     elevation: 1
   },
   picker: {
-    height: 40,
+    height: Platform.OS === 'ios' ? 40 : 30,
     width: 150,
     position: 'absolute',
-    bottom: 100,
+    bottom: Platform.OS === 'ios' ? 100 : 70,
     paddingTop: 10
   },
   pickercontainer: {

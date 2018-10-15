@@ -11,12 +11,6 @@ import HomeScreen from './Screens/HomeScreen';
 import EditInfo from './Screens/EditInfo';
 
 export default class SplashScreen extends Component {
-    static navigationOptions = {
-      headerMode: 'none',
-      header: null,
-      headerLeft: null
-    };
-
     constructor(props){
       super();
         this.state = {firstLaunch: null};
@@ -42,8 +36,10 @@ export default class SplashScreen extends Component {
           return <App/>;
       }
       else {
-          //return <HomeScreen/>;
-          return <App/>;
+          return <HomeScreen/>;
+          //return <App/>;
+         //return <EditInfo/>;
+
       }
     }
 }
