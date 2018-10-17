@@ -132,7 +132,6 @@ export default class EditInfo extends Component<{}> {
       })
     }
     else {
-      console.warn('FAILE');
       this.setState({
         nameValidate: false
       })

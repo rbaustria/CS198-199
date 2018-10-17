@@ -21,12 +21,11 @@ export default createMaterialBottomTabNavigator ({
       ),
     }
   },
-  StreakScreen: { screen: StreakScreen,
+  Graph: { screen: GraphScreen,
     navigationOptions: {
-      title: 'Streak',
-      tabBarLabel: 'Streaks',
+      tabBarLabel: 'Stats',
       tabBarIcon:({tintColor}) => (
-        <Icon name= 'ios-star' color= {tintColor} size= {24} />
+        <Icon name= 'ios-stats' color= {tintColor} size= {24} />
       )
     }
   },
@@ -38,11 +37,12 @@ export default createMaterialBottomTabNavigator ({
       )
     }
   },
-  Graph: { screen: GraphScreen,
+  StreakScreen: { screen: StreakScreen,
     navigationOptions: {
-      tabBarLabel: 'Stats',
+      title: 'Streak',
+      tabBarLabel: 'Streaks',
       tabBarIcon:({tintColor}) => (
-        <Icon name= 'ios-stats' color= {tintColor} size= {24} />
+        <Icon name= 'ios-star' color= {tintColor} size= {24} />
       )
     }
   },
