@@ -20,16 +20,16 @@ const { width: WIDTH } = Dimensions.get('window')
 const { height: HEIGHT } = Dimensions.get('window')
 
 export default class GraphScreen extends Component {
-  constructor(props) {
-    super(props);
-    this.state= {
-      graphValue= ''
-    };
-  }
+  // constructor(props) {
+  //   super(props);
+  //   this.state= {
+  //     graphValue= ''
+  //   };
+  // }
 
-  returnBarColor(value) {
-    // insert how to change BarColor based on the reading/value
-  }
+  // returnBarColor(value) {
+  //   // insert how to change BarColor based on the reading/value
+  // }
 
   render () {
     return (
@@ -47,10 +47,10 @@ export default class GraphScreen extends Component {
               scale={{ x: "time" }}
               >
               <VictoryBar
-                style= {{ data: { fill: "tomato" } }}
+                // style= {{ data: { fill: "tomato" } }}
                 data={ [
-                { x: 'Jun 21', y: 90 },
-                { x: 'Jun 22', y: 100 },
+                { x: 'Jun 21', y: 90, fill: 'red' },
+                { x: 'Jun 22', y: 100, fill: 'white' },
                 { x: 'Aug 1', y: 60 },
                 { x: 'Dec 25', y: 70 }
               ] }
