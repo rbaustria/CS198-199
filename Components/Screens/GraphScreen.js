@@ -28,7 +28,7 @@ export default class GraphScreen extends Component {
   }
 
   returnBarColor(value) {
-    // insert how to change BagColor based on the reading/value
+    // insert how to change BarColor based on the reading/value
   }
 
   render () {
