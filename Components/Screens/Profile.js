@@ -20,19 +20,20 @@ export default class Profile extends Component {
   constructor(props){
     super(props);
     this.state={
-      name: ''
+      name: '',
     }
   };
 
-  check(){
+  getStoredName(){
     AsyncStorage.getItem('name').then((name) => {
         this.setState({name: name, persistedName: name})
     })
   }
 
   componentWillMount(){
-    this.check();
+    this.getStoredName();
   }
+
   render () {
     return (
 
@@ -43,7 +44,7 @@ export default class Profile extends Component {
         </View>
 
         <View style= {styles.background}>
-          <View style= {styles.iconcontainer}>
+          <View style= {styles.infoContainer}>
             <View style= {styles.iconCircle}>
               <View style= {styles.container}>
                 <Octicons name='person' {...iconStyles} />
@@ -52,7 +53,7 @@ export default class Profile extends Component {
             <Text style= {styles.header}> {this.state.persistedName} </Text>
           </View>
 
-          <View style= {styles.iconcontainer}>
+          <View style= {styles.infoContainer}>
             <View style= {styles.textcontainer}>
               <Octicons name='pencil' {...infoIconStyle} />
               <Text style= {styles.text}> Recorded readings: </Text>
@@ -104,7 +105,7 @@ const styles = StyleSheet.create ({
     backgroundColor: '#f2f2f2',
     padding: 20,
   },
-  iconcontainer: {
+  infoContainer: {
     flex: 1,
     alignSelf: 'stretch',
     alignItems: 'center',

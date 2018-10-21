@@ -11,27 +11,35 @@ import {
 } from 'react-native';
 
 import { Header } from 'react-native-elements';
-import { BarChart, LineChart, Grid, YAxis, XAxis } from 'react-native-svg-charts';
-import { VictoryBar, VictoryChart, VictoryTheme } from "victory-native";
-
-
+import { VictoryBar, VictoryChart, VictoryTheme, VictoryAxis } from "victory-native";
 
 const { width: WIDTH } = Dimensions.get('window')
 const { height: HEIGHT } = Dimensions.get('window')
 
 export default class GraphScreen extends Component {
-  // constructor(props) {
-  //   super(props);
-  //   this.state= {
-  //     graphValue= ''
-  //   };
-  // }
+  constructor(props){
+    super(props);
+    this.state={
 
-  // returnBarColor(value) {
-  //   // insert how to change BarColor based on the reading/value
-  // }
+    }
+  };
+
+  clearData(){
+    //AsyncStorage.clear();
+    this.setState({test: []})
+  }
 
   render () {
+    // Formatted data to be graphed should be stored in an array called 'data'
+    // Doesnt separate duplicates :c Dec 13, reading 60 will stack
+    const data= [
+      { date: 'Aug 1', reading: 150},
+      { date: 'Dec 13', reading: 180},
+      { date: 'Jul 11', reading: 70},
+      { date: 'Oct 13', reading: 60},
+      { date: 'Dec 13.2', reading: 180},
+    ]
+
     return (
       <SafeAreaView style= {styles.safeArea}>
         <View>
@@ -42,27 +50,41 @@ export default class GraphScreen extends Component {
           bounces= {false}
           >
           <View style= {styles.background}>
-            <VictoryChart height={HEIGHT - 300} width={WIDTH - 50}
-              domainPadding={{ x: 60, y: [0, 20] }}
-              scale={{ x: "time" }}
-              >
-              <VictoryBar
-                // style= {{ data: { fill: "tomato" } }}
-                data={ [
-                { x: 'Jun 21', y: 90, fill: 'red' },
-                { x: 'Jun 22', y: 100, fill: 'white' },
-                { x: 'Aug 1', y: 60 },
-                { x: 'Dec 25', y: 70 }
-              ] }
-              />
-            </VictoryChart>
+            <View style= {styles.infoContainer}>
+              <VictoryChart
+                  domainPadding={{x: 40}}
+                  height={HEIGHT - 300}
+                  width={WIDTH}
+                >
+                  <VictoryBar
+                    style={{
+                      data: { fill: d => d.reading >= 150 ? '#ff6961' : ( d.reading >= 70 ? '#ffb347' : '#aec6cf' )},
+                    }}
+                    data= { data }
+                    x= 'date'
+                    y= {(d) => d.reading + 100}
+                  />
+                  <VictoryAxis
+                    label= 'date'
+                    style= {{
+                      axisLabel: { padding: 30 }
+                    }}
+                    fixLabelOverlap= { true }
+                  />
+                  <VictoryAxis dependentAxis
+                    label= 'mg/dL'
+                    style= {{
+                      axisLabel: { padding: 35}
+                    }}
+                  />
+              </VictoryChart>
+            </View>
           </View>
         </ScrollView>
       </SafeAreaView>
     );
   }
 }
-
 
 const graphStyle = {
   flex: 1,
@@ -81,10 +103,22 @@ const styles = StyleSheet.create ({
   background: {
     flex: 1,
     alignSelf: 'stretch',
-    //alignContent: 'center',
-    //justifyContent: 'center',
+    justifyContent: 'center',
     backgroundColor: '#f2f2f2',
-    paddingLeft: 30,
+    paddingTop: 30
+  },
+  infoContainer: {
+    flex: 1,
+    alignSelf: 'stretch',
+    alignItems: 'center',
+    backgroundColor: 'white',
+    shadowColor: '#d3d3d3',
+    shadowOffset: { width: 0, height: 5 },
+    shadowOpacity: 0.8,
+    shadowRadius: 2,
+    elevation: 1,
+    padding: 20,
+    marginBottom: 15
   },
   label: {
     marginTop: 20,

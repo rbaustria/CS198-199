@@ -35,13 +35,10 @@ export default class EditInfo extends Component<{}> {
   	super(props);
   	this.state={
       name: '',
-  		frequency: '',
-      storedName: '',
-      storedFrequency: '',
+  		frequency: '1',
       nameValidate: false,
 		}
-    this.persistData = this.persistData.bind(this);
-    this.clearData = this.clearData.bind(this);
+    //this.persistData = this.persistData.bind(this);
   };
 
   storeDataAndNextScreen () {
@@ -51,22 +48,23 @@ export default class EditInfo extends Component<{}> {
 
   persistData(){
     let name = this.state.name
+    let frequency = this.state.frequency
     AsyncStorage.setItem('name', name).done();
-    this.setState({name: name, persistedName: name})
+    AsyncStorage.setItem('frequency', frequency).done();
   }
 
   check(){
-
     AsyncStorage.getItem('name').then((name) => {
         this.setState({name: name, persistedName: name})
     })
 
   }
 
-  clearData(){
-    AsyncStorage.clear();
-    this.setState({persistedName: ''})
-  }
+
+  // clearData(){
+  //   AsyncStorage.clear();
+  //   this.setState({persistedName: ''})
+  // }
 
   componentWillMount(){
     this.check();
@@ -135,6 +133,7 @@ export default class EditInfo extends Component<{}> {
       this.setState({
         nameValidate: false
       })
+      window.alert('Name must not be empty and contain only letters.');
     }
 
   }
@@ -162,9 +161,9 @@ export default class EditInfo extends Component<{}> {
 
         <View style= {styles.pickercontainer}>
           <Picker
-            selectedValue={this.state.language}
             style={styles.picker}
-            onValueChange={(itemValue, itemIndex) => this.setState({language: itemValue})}>
+            selectedValue={this.state.frequency}
+            onValueChange={(itemValue, itemIndex) => this.setState({frequency: itemValue})}>
             <Picker.Item label='Once a day' value='1' />
             <Picker.Item label='Twice a day' value='2' />
             <Picker.Item label='Thrice a day' value='3' />
@@ -177,11 +176,6 @@ export default class EditInfo extends Component<{}> {
               <Text style= {styles.buttontext}>DONE</Text>
             </View>
           </TouchableOpacity>
-
-          <View>
-            <Text>Data recorded:</Text>
-            <Text>Name: {this.state.persistedName}</Text>
-          </View>
         </View>
       </SafeAreaView>
 
