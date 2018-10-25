@@ -32,7 +32,8 @@ export default class ReadingScreen extends Component {
       date: '',
       formatDate: '',
       reading: '',
-      level: ''
+      level: '',
+      blank: ''
     }
 
   };
@@ -116,10 +117,15 @@ export default class ReadingScreen extends Component {
           dataContainer.push(newData);
           AsyncStorage.setItem('storedData', JSON.stringify(dataContainer));
         });
+        this.clearText('GlucoseTextInput')
       }
       catch (error) {
         window.alert(error);
       }
+  }
+
+  clearText(fieldName) {
+    this.refs[fieldName].setNativeProps({text: ''});
   }
 
   render () {
@@ -137,10 +143,12 @@ export default class ReadingScreen extends Component {
                   <FontAwesome5 name= 'syringe' {...iconStyles}/>
                 </View>
                 <TextInput style= {styles.numericinput}
+                 ref={'GlucoseTextInput'}
                  maxLength= {3}
                  keyboardType= 'numeric'
                  placeholder= 'Blood Glucose'
-                 value= {(reading) => this.validateReading(reading)}/>
+                 onChangeText= {(reading) => this.validateReading(reading)}
+                 />
               <View style= {styles.buttoncontainer}>
                 <TouchableOpacity onPress= {() => {this.saveReading()}}>
                   <View style={styles.button}>

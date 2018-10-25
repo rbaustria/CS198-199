@@ -29,7 +29,7 @@ export default class GraphScreen extends Component {
 
   componentDidMount() {
     this.loadData();
-    this.props.navigation.addListener('willFocus', this.loadData)
+    this.props.navigation.addListener('willFocus', this.loadData) // listener to reload graph data when tab is pressed
   }
 
   loadData = async () => {
