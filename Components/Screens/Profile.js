@@ -20,7 +20,7 @@ export default class Profile extends Component {
   constructor(props){
     super(props);
     this.state={
-      name: '',
+      name: ''
     }
   };
 
@@ -28,6 +28,7 @@ export default class Profile extends Component {
     AsyncStorage.getItem('name').then((name) => {
         this.setState({name: name, persistedName: name})
     })
+
   }
 
   componentWillMount(){

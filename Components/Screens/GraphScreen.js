@@ -7,11 +7,13 @@ import {
   StatusBar,
   SafeAreaView,
   ScrollView,
-  Dimensions
+  Dimensions,
+  AsyncStorage,
+  TouchableOpacity
 } from 'react-native';
 
 import { Header } from 'react-native-elements';
-import { VictoryBar, VictoryChart, VictoryTheme, VictoryAxis } from "victory-native";
+import { VictoryBar, VictoryChart, VictoryAxis } from 'victory-native';
 
 const { width: WIDTH } = Dimensions.get('window')
 const { height: HEIGHT } = Dimensions.get('window')
@@ -20,25 +22,67 @@ export default class GraphScreen extends Component {
   constructor(props){
     super(props);
     this.state={
-
+      parsedData: [],
     }
+
   };
 
-  clearData(){
-    //AsyncStorage.clear();
-    this.setState({test: []})
+  componentDidMount() {
+    this.loadData();
+    this.props.navigation.addListener('willFocus', this.loadData)
+  }
+
+  loadData = async () => {
+    try {
+
+      let parsedData = this.state.parsedData;
+      const storedData = await AsyncStorage.getItem('storedData');
+      const parsed = JSON.parse(storedData);
+      const graphData = []
+
+      if (parsed != null) {
+        console.log('Parsed Data: ', parsed);
+        if (parsed.length < 6) {
+          this.setState({
+            parsedData: parsed,
+          })
+        }
+        else {
+          var lastFive = parsed.length - 6;
+          for (let i=lastFive; i < parsed.length; i++) {
+            graphData.push(parsed[i])
+          }
+          this.setState({
+            parsedData: graphData,
+          })
+        }
+      }
+      else {
+        console.log('No data to be graphed yet. Try to refresh.');
+        return;
+      }
+    }
+    catch (error) {
+      console.log(error);
+    }
+
   }
 
   render () {
-    // Formatted data to be graphed should be stored in an array called 'data'
-    // Doesnt separate duplicates :c Dec 13, reading 60 will stack
-    const data= [
-      { date: 'Aug 1', reading: 150},
-      { date: 'Dec 13', reading: 180},
-      { date: 'Jul 11', reading: 70},
-      { date: 'Oct 13', reading: 60},
-      { date: 'Dec 13.2', reading: 180},
-    ]
+
+    // const data= [
+    //   { date: 'Aug 1', reading: 150},
+    //   { date: 'Dec 13', reading: 180},
+    //   { date: 'Jul 11', reading: 70},
+    //   { date: 'Oct 13', reading: 60},
+    //   { date: 'Dec 13.2', reading: 180},
+    //   { date: 'Dec 13.2', reading: 180}
+    //
+    // ]
+
+    // Formatted Dates
+    const dataX = this.state.parsedData.map(obj => obj.formatDate);
+    console.log(dataX);
 
     return (
       <SafeAreaView style= {styles.safeArea}>
@@ -50,35 +94,32 @@ export default class GraphScreen extends Component {
           bounces= {false}
           >
           <View style= {styles.background}>
-            <View style= {styles.infoContainer}>
-              <VictoryChart
-                  domainPadding={{x: 40}}
-                  height={HEIGHT - 300}
-                  width={WIDTH}
-                >
-                  <VictoryBar
-                    style={{
-                      data: { fill: d => d.reading >= 150 ? '#ff6961' : ( d.reading >= 70 ? '#ffb347' : '#aec6cf' )},
-                    }}
-                    data= { data }
-                    x= 'date'
-                    y= {(d) => d.reading + 100}
-                  />
-                  <VictoryAxis
-                    label= 'date'
-                    style= {{
-                      axisLabel: { padding: 30 }
-                    }}
-                    fixLabelOverlap= { true }
-                  />
-                  <VictoryAxis dependentAxis
-                    label= 'mg/dL'
-                    style= {{
-                      axisLabel: { padding: 35}
-                    }}
-                  />
-              </VictoryChart>
-            </View>
+              <VictoryChart style={{ parent: { maxWidth: "50%" } }}
+              domainPadding={{x: [50, 0]}}
+              height= {HEIGHT - 300}
+              width= {WIDTH}
+              >
+                <VictoryBar
+                  style={{
+                    data: { fill: d => d.reading >= 150 ? '#ff6961' : ( d.reading >= 70 ? '#ffb347' : '#aec6cf' )},
+                  }}
+                  animate={{ duration: 2000 }}
+                  data= {this.state.parsedData}
+                  x= 'date'
+                  y= {(d) => d.reading}
+                />
+                <VictoryAxis
+                  style={{
+                    axisLabel: {padding: 20}
+                  }}
+                  tickFormat= {dataX}
+                />
+                <VictoryAxis dependentAxis
+                  style= {{
+                    axisLabel: { padding: 35}
+                  }}
+                />
+            </VictoryChart>
           </View>
         </ScrollView>
       </SafeAreaView>
@@ -105,7 +146,6 @@ const styles = StyleSheet.create ({
     alignSelf: 'stretch',
     justifyContent: 'center',
     backgroundColor: '#f2f2f2',
-    paddingTop: 30
   },
   infoContainer: {
     flex: 1,
@@ -127,5 +167,10 @@ const styles = StyleSheet.create ({
     fontSize: 30,
     fontWeight: 'bold',
     marginVertical: 15
+  },
+  xAxis: {
+    flexDirection: 'row',
+    paddingHorizontal: 30,
+    paddingLeft: 80,
   }
 });

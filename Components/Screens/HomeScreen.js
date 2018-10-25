@@ -10,8 +10,6 @@ import GraphScreen from './GraphScreen';
 import ShareDataScreen from './ShareDataScreen';
 
 
-
-
 export default createMaterialBottomTabNavigator ({
   Profile: { screen: Profile,
     navigationOptions: {

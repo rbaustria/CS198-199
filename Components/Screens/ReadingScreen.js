@@ -11,12 +11,14 @@ import {
   TouchableOpacity,
   Keyboard,
   TouchableWithoutFeedback,
-  AsyncStorage
+  AsyncStorage,
+  DeviceEventEmitter
 } from 'react-native';
 
 import { Header } from 'react-native-elements';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5.js';
 import LinearGradient from 'react-native-linear-gradient';
+import GraphScreen from './GraphScreen.js';
 
 const { width: WIDTH } = Dimensions.get('window')
 const { height: HEIGHT } = Dimensions.get('window')
@@ -28,54 +30,92 @@ export default class ReadingScreen extends Component {
     this.state={
       storedData: [],
       date: '',
-      reading: ''
+      formatDate: '',
+      reading: '',
+      level: ''
     }
+
   };
-
-  setValue(reading) {
-    if (reading != null) {
-      this.setState({
-        reading: reading
-      })
-      this.persistData();
-    }
-    else {
-      window.alert('Please do not enter a blank value.');
-    }
-  }
-
-  persistData(){
-    let reading = this.state.reading
-    AsyncStorage.setItem('reading', reading).done();
-    AsyncStorage.getItem('reading').then((reading) => {
-        this.setState({reading: reading, persistedReading: reading})
-    })
-  }
 
   // For debugging, clearing data
   clearData(){
-    //AsyncStorage.clear();
-    let storedData = this.state.storedData
-    this.setState({storedData: []})
-    console.log('data cleared');
-    console.log(storedData);
+    AsyncStorage.clear();
+    console.log('Data cleared. App will reset.');
+  }
+
+  getInputDate() {
+    var day = new Date().getDate();
+    var month = new Date().getMonth() + 1;
+    var year = new Date().getFullYear();
+    var hour = new Date().getHours();
+    var minutes = new Date().getMinutes();
+    var seconds = new Date().getSeconds();
+    var date = day + '-' + month + '-' + year + '-' + hour + ':' + minutes + ':' + seconds;
+    return date;
+  }
+
+  getFormatDate (date) {
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+    var day = date[0] + date[1]
+    var month = date[3] + date[4]
+    var index = parseInt(month)-1; // Get the month
+    return (months[index] + '\n' + day);
+
+  }
+
+  getReadingLevel(value) {
+    var level = '';
+    if (value >= 150) {
+      level = 'Above';
+    }
+    else if (value >= 70) {
+      level = 'Normal';
+    }
+    else {
+      level = 'Below';
+    }
+    return level;
+  }
+
+  validateReading(value) {
+    if (value != null) {
+      currDate = this.getInputDate();
+      currLevel = this.getReadingLevel(value);
+      currFormatDate = this.getFormatDate(currDate);
+      this.setState({
+        date: currDate,
+        reading: value,
+        level: currLevel,
+        formatDate:currFormatDate
+      });
+    }
+    else {
+      window.alert('Please do not input a blank value.');
+    }
   }
 
   saveReading = () => {
       try {
-        let loadedreading = this.state.reading
+        // Need to reset TextInput Field and then give snarky feedback
+        let loadedDate = this.state.date
+        let loadedReading = parseInt(this.state.reading)
+        let loadedLevel = this.state.level
+        let loadedFormatDate = this.state.formatDate
+
         let newData = {
-          //date: date,
-          reading: loadedreading
-          //level: level
+          date: loadedDate,
+          reading: loadedReading,
+          level: loadedLevel,
+          formatDate: loadedFormatDate
         }
+        console.log(newData);
         AsyncStorage.getItem('storedData')
         .then((storedData) => {
           const dataContainer = storedData ? JSON.parse(storedData) : [];
           dataContainer.push(newData);
           AsyncStorage.setItem('storedData', JSON.stringify(dataContainer));
         });
-        console.log(storedData);
       }
       catch (error) {
         window.alert(error);
@@ -99,18 +139,17 @@ export default class ReadingScreen extends Component {
                 <TextInput style= {styles.numericinput}
                  maxLength= {3}
                  keyboardType= 'numeric'
-                 placeholder= 'Glucose'
-                 onChangeText= {(reading) => this.setState({reading: reading})}/>
+                 placeholder= 'Blood Glucose'
+                 value= {(reading) => this.validateReading(reading)}/>
               <View style= {styles.buttoncontainer}>
                 <TouchableOpacity onPress= {() => {this.saveReading()}}>
                   <View style={styles.button}>
                     <Text style= {styles.buttontext}>Enter</Text>
                   </View>
                 </TouchableOpacity>
-
-                <View>
-                  <Text>Value: {this.state.persistedReading} </Text>
-                </View>
+                <TouchableOpacity style= {{flex: 1, padding: 20}}onPress= {() => {this.clearData()}}>
+                    <Text style= {{color: '#d3d3d3', fontFamily: 'Avenir', textAlign: 'center'}}>Clear</Text>
+                </TouchableOpacity>
               </View>
             </View>
           </View>
@@ -122,6 +161,7 @@ export default class ReadingScreen extends Component {
 
 // Paste this to reset data when button is pressed.
 // <TouchableOpacity onPress= {() => {this.clearData()}}>
+// reset keyboard
 
 const iconStyles = {
   size: 60,

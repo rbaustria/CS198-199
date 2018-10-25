@@ -57,7 +57,6 @@ export default class EditInfo extends Component<{}> {
     AsyncStorage.getItem('name').then((name) => {
         this.setState({name: name, persistedName: name})
     })
-
   }
 
 
