@@ -46,7 +46,7 @@ export default createMaterialBottomTabNavigator ({
   },
   SendData: { screen: ShareDataScreen,
     navigationOptions: {
-      tabBarLabel: 'Send Data',
+      tabBarLabel: 'Info',
       tabBarIcon:({tintColor}) => (
         <Icon name= 'ios-document' color= {tintColor} size= {24} />
       )

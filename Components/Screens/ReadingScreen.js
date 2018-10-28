@@ -16,9 +16,8 @@ import {
 } from 'react-native';
 
 import { Header } from 'react-native-elements';
+import Entypo from 'react-native-vector-icons/Entypo.js';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5.js';
-import LinearGradient from 'react-native-linear-gradient';
-import GraphScreen from './GraphScreen.js';
 
 const { width: WIDTH } = Dimensions.get('window')
 const { height: HEIGHT } = Dimensions.get('window')
@@ -33,7 +32,9 @@ export default class ReadingScreen extends Component {
       formatDate: '',
       reading: '',
       level: '',
-      blank: ''
+      feedback: '',
+      displayIcon: 'emoji-flirt',
+      readingValidate: false
     }
 
   };
@@ -88,7 +89,8 @@ export default class ReadingScreen extends Component {
         date: currDate,
         reading: value,
         level: currLevel,
-        formatDate:currFormatDate
+        formatDate:currFormatDate,
+        readingValidate: true
       });
     }
     else {
@@ -96,13 +98,68 @@ export default class ReadingScreen extends Component {
     }
   }
 
+  getRandomInt(max) {
+    return Math.floor(Math.random() * Math.floor(max));
+  }
+
+  displayFeedback (value) {
+    var aboveFeedbackArray = [
+      'Are you sure you still want to live? Keep that blood sugar down would you?',
+      'Have you heard about the cure for diabetes? Cause I haven’t, so keep that blood sugar low.',
+      'I said, "Help yourself" not help yourself with more food.',
+      'Life is sweet and so are candies. How much did you have?!',
+    ];
+
+    var normalFeedbackArray = [
+      'Good job! Now we just have to keep this up until FOREVER!',
+      'Nice! If you keep this up, I won’t be snooping around your text messages. Kidding!',
+      'That’s what I’m talking about! I heard keeping a normal blood sugar will earn you something nice.'
+    ];
+
+    var belowFeedbackArray = [
+      'I think you should sit down, reflect on your blood sugar and eat a chocolate bar.',
+      'You need sugar too you know! Get that blood glucose to normal level so I can talk to you again.',
+      'There’s a secret I want to tell you. But first, you should go yourself some sugar.',
+      'I told you that too much sugar is not healthy. Did you think too less is better? Work on getting that to a normal level.'
+
+    ];
+
+    var index;
+    if (value >= 150) {
+      index = this.getRandomInt(aboveFeedbackArray.length);
+      console.log(index)
+      var temp = aboveFeedbackArray[index];
+      this.setState({
+        feedback: temp,
+        displayIcon: 'emoji-sad'
+      })
+    }
+    else if (value >= 70) {
+      index = this.getRandomInt(normalFeedbackArray.length);
+      var temp = normalFeedbackArray[index];
+      this.setState({
+        feedback: temp,
+        displayIcon: 'emoji-happy'
+      })
+    }
+    else {
+      index = this.getRandomInt(belowFeedbackArray.length);
+      var temp = belowFeedbackArray[index];
+      this.setState({
+        feedback: temp,
+        displayIcon: 'emoji-neutral'
+      })
+    }
+  }
+
   saveReading = () => {
       try {
-        // Need to reset TextInput Field and then give snarky feedback
         let loadedDate = this.state.date
         let loadedReading = parseInt(this.state.reading)
         let loadedLevel = this.state.level
         let loadedFormatDate = this.state.formatDate
+
+        this.displayFeedback(loadedReading);
 
         let newData = {
           date: loadedDate,
@@ -118,6 +175,9 @@ export default class ReadingScreen extends Component {
           AsyncStorage.setItem('storedData', JSON.stringify(dataContainer));
         });
         this.clearText('GlucoseTextInput')
+        this.setState({
+          readingValidate: false
+        })
       }
       catch (error) {
         window.alert(error);
@@ -126,6 +186,12 @@ export default class ReadingScreen extends Component {
 
   clearText(fieldName) {
     this.refs[fieldName].setNativeProps({text: ''});
+  }
+
+  SampleFunction=(item)=>{
+
+    window.alert(item);
+
   }
 
   render () {
@@ -137,6 +203,13 @@ export default class ReadingScreen extends Component {
         </View>
         <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
           <View style= {styles.background}>
+            <View style= {styles.feedbackbackground}>
+              <View style= {{justifyContent: 'center'}}>
+                <Entypo name={this.state.displayIcon} {...feedbackIcon}/>
+              </View>
+              <Text style= {styles.text}>{this.state.feedback}</Text>
+            </View>
+
             <View style= {styles.infocontainer}>
               <Text style= {styles.header}>Enter blood glucose:</Text>
                 <View style= {styles.iconborder}>
@@ -150,13 +223,10 @@ export default class ReadingScreen extends Component {
                  onChangeText= {(reading) => this.validateReading(reading)}
                  />
               <View style= {styles.buttoncontainer}>
-                <TouchableOpacity onPress= {() => {this.saveReading()}}>
+                <TouchableOpacity disabled= {!this.state.readingValidate ? true : false} onPress= {() => {this.saveReading()}}>
                   <View style={styles.button}>
                     <Text style= {styles.buttontext}>Enter</Text>
                   </View>
-                </TouchableOpacity>
-                <TouchableOpacity style= {{flex: 1, padding: 20}}onPress= {() => {this.clearData()}}>
-                    <Text style= {{color: '#d3d3d3', fontFamily: 'Avenir', textAlign: 'center'}}>Clear</Text>
                 </TouchableOpacity>
               </View>
             </View>
@@ -166,13 +236,16 @@ export default class ReadingScreen extends Component {
     );
   }
 }
-
-// Paste this to reset data when button is pressed.
-// <TouchableOpacity onPress= {() => {this.clearData()}}>
-// reset keyboard
+// <TouchableOpacity style= {{flex: 1, padding: 20}}onPress= {() => {this.clearData()}}>
+//     <Text style= {{color: '#d3d3d3', fontFamily: 'Avenir', textAlign: 'center'}}>Clear</Text>
+// </TouchableOpacity>
+const feedbackIcon = {
+  size: 50,
+  color: '#21B6A8'
+};
 
 const iconStyles = {
-  size: 60,
+  size: 50,
   color: '#21B6A8',
   flex: 1
 };
@@ -188,6 +261,18 @@ const styles = StyleSheet.create ({
     backgroundColor: '#f2f2f2',
     padding: 20,
   },
+  feedbackbackground: {
+    flexDirection: 'row',
+    backgroundColor: 'white',
+    shadowColor: '#d3d3d3',
+    shadowOffset: { width: 0, height: 5 },
+    shadowOpacity: 0.8,
+    shadowRadius: 2,
+    elevation: 1,
+    marginBottom: 15,
+    height: 100,
+    paddingHorizontal: 5
+  },
   infocontainer: {
     flex: 1,
     alignSelf: 'stretch',
@@ -198,13 +283,12 @@ const styles = StyleSheet.create ({
     shadowOpacity: 0.8,
     shadowRadius: 2,
     elevation: 1,
-    padding: 10,
   },
   header: {
     marginTop: 20,
     color: '#859593',
     fontFamily: 'Avenir',
-    fontSize: 30,
+    fontSize: 25,
     fontWeight: 'bold',
     marginVertical: 15
   },
@@ -212,7 +296,10 @@ const styles = StyleSheet.create ({
     color: '#859593',
     fontFamily: 'Avenir',
     fontSize: 18,
-    textAlign: 'left'
+    textAlign: 'left',
+    paddingLeft: 5,
+    paddingRight: 50,
+    paddingTop: 5
   },
   numericinput: {
     width: WIDTH - 200,
@@ -231,8 +318,8 @@ const styles = StyleSheet.create ({
     textAlign: 'center'
   },
   iconborder: {
-    width: 120,
-    height: 120,
+    width: 100,
+    height: 100,
     borderRadius: 60,
     borderColor: '#21B6A8',
     borderWidth: 10,
@@ -245,31 +332,28 @@ const styles = StyleSheet.create ({
     alignItems: 'center'
   },
   buttoncontainer: {
-    // justifyContent: 'center',
-    // alignItems: 'center',
     textAlign: 'center',
     shadowColor: '#d3d3d3',
     shadowOffset: { width: 0, height: 5 },
     shadowOpacity: 0.8,
     shadowRadius: 2,
     elevation: 1,
-    paddingVertical: 10
   },
   button: {
-    width: WIDTH - 250,
-    height: HEIGHT - 550,
+    justifyContent: 'center',
+    width: 90,
+    height: 90,
     borderRadius: 60, // Rounded border
     backgroundColor: '#21B6A8',
     borderColor: '#21B6A8',
-    paddingVertical: 50,
-
+    marginBottom: 5
   },
   // Button text
   buttontext: {
     color: '#FFFFFF',
     fontWeight: 'bold',
     fontFamily: 'Avenir',
-    textAlign: 'center'
+    textAlign: 'center',
   }
 
 });

@@ -13,6 +13,7 @@ import {
 } from 'react-native';
 
 import { Header } from 'react-native-elements';
+import Octicons from 'react-native-vector-icons/Octicons.js';
 import { VictoryBar, VictoryChart, VictoryAxis } from 'victory-native';
 
 const { width: WIDTH } = Dimensions.get('window')
@@ -39,7 +40,15 @@ export default class GraphScreen extends Component {
       const storedData = await AsyncStorage.getItem('storedData');
       const parsed = JSON.parse(storedData);
       const graphData = []
-
+      // const filler= [
+      //   { date: 'Jan 1.1', reading: -1, formatDate: ''},
+      //   { date: 'Jan 2.1', reading: -1, formatDate: ''},
+      //   { date: 'Jan 3.1', reading: -1, formatDate: ''},
+      //   { date: 'Jan 4.1', reading: -1, formatDate: ''},
+      //   { date: 'Jan 5.1', reading: -1, formatDate: ''},
+      //   { date: 'Jan 6.1', reading: -1, formatDate: ''}
+      //
+      // ]
       if (parsed != null) {
         console.log('Parsed Data: ', parsed);
         if (parsed.length < 6) {
@@ -69,17 +78,6 @@ export default class GraphScreen extends Component {
   }
 
   render () {
-
-    // const data= [
-    //   { date: 'Aug 1', reading: 150},
-    //   { date: 'Dec 13', reading: 180},
-    //   { date: 'Jul 11', reading: 70},
-    //   { date: 'Oct 13', reading: 60},
-    //   { date: 'Dec 13.2', reading: 180},
-    //   { date: 'Dec 13.2', reading: 180}
-    //
-    // ]
-
     // Formatted Dates
     const dataX = this.state.parsedData.map(obj => obj.formatDate);
     console.log(dataX);
@@ -120,6 +118,20 @@ export default class GraphScreen extends Component {
                   }}
                 />
             </VictoryChart>
+            <View style= {{flexDirection: 'column', justifyContent: 'center'}}>
+              <View style= {styles.legendContainer}>
+                <Octicons name='primitive-square' {...redSquare} />
+                <Text style= {styles.text}> Above </Text>
+              </View>
+              <View style= {styles.legendContainer}>
+                <Octicons name='primitive-square' {...orangeSquare} />
+                <Text style= {styles.text}> Normal </Text>
+              </View>
+              <View style= {styles.legendContainer}>
+                <Octicons name='primitive-square' {...blueSquare} />
+                <Text style= {styles.text}> Below </Text>
+              </View>
+            </View>
           </View>
         </ScrollView>
       </SafeAreaView>
@@ -127,10 +139,23 @@ export default class GraphScreen extends Component {
   }
 }
 
-const graphStyle = {
+const redSquare = {
+  size: 30,
+  color: '#ff6961',
   flex: 1,
-  alignSelf: 'stretch'
-}
+};
+
+const orangeSquare = {
+  size: 30,
+  color: '#ffb347',
+  flex: 1,
+};
+
+const blueSquare = {
+  size: 30,
+  color: '#aec6cf',
+  flex: 1,
+};
 
 const styles = StyleSheet.create ({
   safeArea: {
@@ -164,13 +189,20 @@ const styles = StyleSheet.create ({
     marginTop: 20,
     color: '#000000',
     fontFamily: 'Avenir',
-    fontSize: 30,
+    fontSize: 25,
     fontWeight: 'bold',
     marginVertical: 15
   },
-  xAxis: {
+  legendContainer: {
+    paddingLeft: 40,
     flexDirection: 'row',
-    paddingHorizontal: 30,
-    paddingLeft: 80,
+    alignSelf: 'stretch',
+    alignContent: 'flex-start',
+  },
+  text: {
+    color: '#859593',
+    fontFamily: 'Avenir',
+    fontSize: 15,
+    paddingTop: 5
   }
 });

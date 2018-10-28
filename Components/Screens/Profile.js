@@ -14,7 +14,6 @@ import {
 import { Header } from 'react-native-elements';
 import Octicons from 'react-native-vector-icons/Octicons.js';
 import Icon from 'react-native-vector-icons/Ionicons.js';
-import EditInfo from './EditInfo';
 
 export default class Profile extends Component {
   constructor(props){

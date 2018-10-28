@@ -11,7 +11,9 @@ import {
   Dimensions,
   Picker,
   Button,
+  Keyboard,
   TouchableOpacity,
+  TouchableWithoutFeedback,
   AsyncStorage
 } from 'react-native';
 import { createStackNavigator } from 'react-navigation';
@@ -38,7 +40,6 @@ export default class EditInfo extends Component<{}> {
   		frequency: '1',
       nameValidate: false,
 		}
-    //this.persistData = this.persistData.bind(this);
   };
 
   storeDataAndNextScreen () {
@@ -59,37 +60,9 @@ export default class EditInfo extends Component<{}> {
     })
   }
 
-
-  // clearData(){
-  //   AsyncStorage.clear();
-  //   this.setState({persistedName: ''})
-  // }
-
   componentWillMount(){
     this.check();
   }
-
-  // onLoad = async () => {
-  //   try {
-  //     const storedName = await AsyncStorage.getItem(key);
-  //     this.setState({ storedName });
-  //   }
-  //   catch (error) {
-  //     Alert.alert('Error', 'There was an error while loading the data');
-  //   }
-  // }
-
-  // saveData () {
-  //   const { text } = this.state;
-  //   //console.warn("WOO");
-  //   try {
-  //     await AsyncStorage.setItem(key, text);
-  //     Alert.alert('Saved', 'Successfully saved.');
-  //   }
-  //   catch (error) {
-  //     Alert.alert('Error', 'There was an arror while saving the data');
-  //   }
-  // }
 
   collectHealthInfo = () => {
     if (Platform.OS === 'android') {
@@ -144,31 +117,13 @@ export default class EditInfo extends Component<{}> {
           <StatusBar barStyle= 'dark-content' hidden = {false}/>
             <EditInfoHeader/>
         </View>
-
         <View style= {styles.inputcontainer}>
           <TextInput
             style= {styles.textinput}
             onChangeText= {(name) => this.validateName(name)}
             placeholder= {'Name'}
-            placeholderTextcolor= {'rbga(255,255,255,0.7)'}
-          />
+            placeholderTextcolor= {'rbga(255,255,255,0.7)'}/>
         </View>
-
-        <View style= {styles.inputcontainer}>
-          <Text style= {styles.label}>How many times a day do you check your blood sugar?</Text>
-        </View>
-
-        <View style= {styles.pickercontainer}>
-          <Picker
-            style={styles.picker}
-            selectedValue={this.state.frequency}
-            onValueChange={(itemValue, itemIndex) => this.setState({frequency: itemValue})}>
-            <Picker.Item label='Once a day' value='1' />
-            <Picker.Item label='Twice a day' value='2' />
-            <Picker.Item label='Thrice a day' value='3' />
-          </Picker>
-        </View>
-
         <View style= {styles.container}>
           <TouchableOpacity disabled= {!this.state.nameValidate ? true : false} onPress={this.storeDataAndNextScreen.bind(this)}>
             <View style={styles.button}>
