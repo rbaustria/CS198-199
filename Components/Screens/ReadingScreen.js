@@ -54,8 +54,8 @@ export default class ReadingScreen extends Component {
     var hour = new Date().getHours();
     var minutes = new Date().getMinutes();
     var seconds = new Date().getSeconds();
-    var date = year + '-' + month + '-' + day + ' ' + hour + ':' + minutes + ':' + seconds;
-    var currFormatDate = months[month - 1] + '\n' + day;
+    var date = year + '-' + month + '-' + day + ' ' + hour + ':' + minutes + ':' + seconds; // Date to be stored in HealthKit
+    var currFormatDate = months[month - 1] + '\n' + day; // Date to be displayed in the graph
     this.setState({
       formatDate: currFormatDate
     })
@@ -164,15 +164,17 @@ export default class ReadingScreen extends Component {
         console.log(newData);
 
         // Writing the data to HealthKit
-        let healthData = {
-          HKType: 'BloodGlucose',
-          BloodGlucose: loadedReading,
-          Date: loadedDate,
-          Unit: 'mg/dL'
+        if (Platform.OS === 'ios') {
+          let healthData = {
+            HKType: 'BloodGlucose',
+            BloodGlucose: loadedReading,
+            Date: loadedDate,
+            Unit: 'mg/dL'
+          }
+          RNHealthKit.saveHealthData(healthData, (error, events) => {
+            console.log(events);
+          })
         }
-        RNHealthKit.saveHealthData(healthData, (error, events) => {
-          console.log(events);
-        })
 
         AsyncStorage.getItem('storedData')
         .then((storedData) => {
