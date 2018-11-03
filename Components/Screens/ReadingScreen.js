@@ -16,6 +16,7 @@ import {
 } from 'react-native';
 
 import { Header } from 'react-native-elements';
+import { RNHealthKit } from 'react-native-healthkit';
 import Entypo from 'react-native-vector-icons/Entypo.js';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5.js';
 
@@ -46,24 +47,19 @@ export default class ReadingScreen extends Component {
   }
 
   getInputDate() {
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
     var day = new Date().getDate();
     var month = new Date().getMonth() + 1;
     var year = new Date().getFullYear();
     var hour = new Date().getHours();
     var minutes = new Date().getMinutes();
     var seconds = new Date().getSeconds();
-    var date = day + '-' + month + '-' + year + '-' + hour + ':' + minutes + ':' + seconds;
+    var date = year + '-' + month + '-' + day + ' ' + hour + ':' + minutes + ':' + seconds;
+    var currFormatDate = months[month - 1] + '\n' + day;
+    this.setState({
+      formatDate: currFormatDate
+    })
     return date;
-  }
-
-  getFormatDate (date) {
-    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-
-    var day = date[0] + date[1]
-    var month = date[3] + date[4]
-    var index = parseInt(month)-1; // Get the month
-    return (months[index] + '\n' + day);
-
   }
 
   getReadingLevel(value) {
@@ -84,12 +80,10 @@ export default class ReadingScreen extends Component {
     if (value != null) {
       currDate = this.getInputDate();
       currLevel = this.getReadingLevel(value);
-      currFormatDate = this.getFormatDate(currDate);
       this.setState({
         date: currDate,
         reading: value,
         level: currLevel,
-        formatDate:currFormatDate,
         readingValidate: true
       });
     }
@@ -168,6 +162,18 @@ export default class ReadingScreen extends Component {
           formatDate: loadedFormatDate
         }
         console.log(newData);
+
+        // Writing the data to HealthKit
+        let healthData = {
+          HKType: 'BloodGlucose',
+          BloodGlucose: loadedReading,
+          Date: loadedDate,
+          Unit: 'mg/dL'
+        }
+        RNHealthKit.saveHealthData(healthData, (error, events) => {
+          console.log(events);
+        })
+
         AsyncStorage.getItem('storedData')
         .then((storedData) => {
           const dataContainer = storedData ? JSON.parse(storedData) : [];
@@ -186,12 +192,6 @@ export default class ReadingScreen extends Component {
 
   clearText(fieldName) {
     this.refs[fieldName].setNativeProps({text: ''});
-  }
-
-  SampleFunction=(item)=>{
-
-    window.alert(item);
-
   }
 
   render () {

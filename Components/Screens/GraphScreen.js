@@ -30,7 +30,11 @@ export default class GraphScreen extends Component {
 
   componentDidMount() {
     this.loadData();
-    this.props.navigation.addListener('willFocus', this.loadData) // listener to reload graph data when tab is pressed
+    this.reloadGraphData = this.props.navigation.addListener('willFocus', this.loadData) // listener to reload graph data when tab is pressed
+  }
+
+  componentWillUnmount () {
+    this.reloadGraphData.remove();
   }
 
   loadData = async () => {
@@ -101,7 +105,7 @@ export default class GraphScreen extends Component {
                   style={{
                     data: { fill: d => d.reading >= 150 ? '#ff6961' : ( d.reading >= 70 ? '#ffb347' : '#aec6cf' )},
                   }}
-                  animate={{ duration: 2000 }}
+                  animate={{ duration: 1000 }}
                   data= {this.state.parsedData}
                   x= 'date'
                   y= {(d) => d.reading}

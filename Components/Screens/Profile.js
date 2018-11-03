@@ -12,22 +12,24 @@ import {
 } from 'react-native';
 
 import { Header } from 'react-native-elements';
-import Octicons from 'react-native-vector-icons/Octicons.js';
+import AppleHealthKit from 'rn-apple-healthkit';
+import { RNHealthKit } from 'react-native-healthkit';
 import Icon from 'react-native-vector-icons/Ionicons.js';
+import Octicons from 'react-native-vector-icons/Octicons.js';
 
 export default class Profile extends Component {
-  constructor(props){
+  constructor(props) {
     super(props);
     this.state={
-      name: ''
+      name: '',
+      _startDate: ''
     }
   };
 
-  getStoredName(){
+  getStoredName() {
     AsyncStorage.getItem('name').then((name) => {
         this.setState({name: name, persistedName: name})
     })
-
   }
 
   componentWillMount(){

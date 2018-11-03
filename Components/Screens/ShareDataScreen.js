@@ -11,7 +11,6 @@ import {
 
 import { Header } from 'react-native-elements';
 import Octicons from 'react-native-vector-icons/Octicons.js';
-import LinearGradient from 'react-native-linear-gradient';
 
 export default class ShareDataScreen extends Component {
 

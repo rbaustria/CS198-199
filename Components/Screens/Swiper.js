@@ -11,11 +11,13 @@ import {
   Platform, // Detects platform running the app
   ScrollView, // Handles navigation between screens
   StyleSheet, // CSS-like styles
-  View // Container component
+  View, // Container component
+  AsyncStorage
 } from 'react-native';
 
 import { createStackNavigator } from 'react-navigation';
 import AppleHealthKit from 'rn-apple-healthkit';
+import { RNHealthKit } from 'react-native-healthkit';
 import EditInfo from './EditInfo';
 
 
@@ -66,22 +68,20 @@ export default class OnboardingScreens extends Component {
     else {
       // For Healthkit
       // According to Apple's privacy policy, we can't ask to allow permissions again, user must manually allow the perms.
-      let options = {
-            permissions: {
-                read: ['Weight', 'BiologicalSex', 'DateOfBirth'],
-            }
-        };
 
-        AppleHealthKit.initHealthKit(options: Object, (err: string, results: Object) => {
-            if (err) {
-                console.log('error initializing Healthkit: ', err);
-                return;
-            }
-            // Healthkit is initialized...
-            // now safe to read and write Healthkit data...
-        });
-        this.testfun = this.navigateToNextScreen.bind(this)
-        setTimeout(this.navigateToNextScreen, 1000)
+      let permissions = {
+          read: ['BloodGlucose', 'BiologicalSex', 'DateOfBirth'],
+          write: ['BloodGlucose'],
+      };
+      RNHealthKit.requestPermissions(permissions, (error, events) => {
+          console.log(events);
+      })
+
+      // Initial start date for querying blood glucose. Will update based everytime user goes to Profile screen.
+      let temp = (new Date(2014,9,26)).toISOString();
+      AsyncStorage.setItem('newStartDate', temp).done();
+      this.testfun = this.navigateToNextScreen.bind(this)
+      setTimeout(this.navigateToNextScreen, 1000)
 
     }
   }
