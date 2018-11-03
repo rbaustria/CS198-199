@@ -12,7 +12,8 @@ import {
   Keyboard,
   TouchableWithoutFeedback,
   AsyncStorage,
-  DeviceEventEmitter
+  DeviceEventEmitter,
+  Platform
 } from 'react-native';
 
 import { Header } from 'react-native-elements';
