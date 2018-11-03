@@ -7,6 +7,7 @@ import {
   StatusBar,
   SafeAreaView,
   TextInput,
+  Platform,
   Dimensions,
   TouchableOpacity,
   Keyboard,
@@ -195,7 +196,8 @@ export default class ReadingScreen extends Component {
   }
 
   render () {
-    return (
+    if(Platform.OS === 'android'){
+            return (
       <SafeAreaView style= {styles.safeArea}>
         <View>
           <StatusBar barStyle='light-content' hidden= {false}/>
@@ -212,9 +214,48 @@ export default class ReadingScreen extends Component {
 
             <View style= {styles.infocontainer}>
               <Text style= {styles.header}>Enter blood glucose:</Text>
+
+                <TextInput style= {styles.numericinput}
+                 ref={'GlucoseTextInput'}
+                 maxLength= {3}
+                 keyboardType= 'numeric'
+                 placeholder= 'Blood Glucose'
+                 onChangeText= {(reading) => this.validateReading(reading)}
+                 />
+              <View style= {styles.buttoncontainer}>
+                <TouchableOpacity disabled= {!this.state.readingValidate ? true : false} onPress= {() => {this.saveReading()}}>
                 <View style= {styles.iconborder}>
                   <FontAwesome5 name= 'syringe' {...iconStyles}/>
                 </View>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        </TouchableWithoutFeedback>
+      </SafeAreaView>
+    );  
+    }
+    else{
+      return (
+      <SafeAreaView style= {styles.safeArea}>
+        <View>
+          <StatusBar barStyle='light-content' hidden= {false}/>
+          <Header placement= 'left' centerComponent={{ text: 'Add Reading', placement: 'center', style: { color: '#fff', fontFamily: 'Avenir', fontSize: 20, fontWeight: 'bold' } }} outerContainerStyles={{ backgroundColor: '#21B6A8', height: 60}}/>
+        </View>
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+          <View style= {styles.background}>
+            <View style= {styles.feedbackbackground}>
+              <View style= {{justifyContent: 'center'}}>
+                <Entypo name={this.state.displayIcon} {...feedbackIcon}/>
+              </View>
+              <Text style= {styles.text}>{this.state.feedback}</Text>
+            </View>
+
+            <View style= {styles.infocontainer}>
+              <Text style= {styles.header}>Enter blood glucose:</Text>
+              <View style= {styles.iconborder}>
+                 <FontAwesome5 name= 'syringe' {...iconStyles}/>
+              </View>
                 <TextInput style= {styles.numericinput}
                  ref={'GlucoseTextInput'}
                  maxLength= {3}
@@ -233,7 +274,9 @@ export default class ReadingScreen extends Component {
           </View>
         </TouchableWithoutFeedback>
       </SafeAreaView>
-    );
+    );  
+    }
+  
   }
 }
 // <TouchableOpacity style= {{flex: 1, padding: 20}}onPress= {() => {this.clearData()}}>
