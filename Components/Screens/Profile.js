@@ -6,30 +6,37 @@ import {
   Text,
   StatusBar,
   SafeAreaView,
-  Dimensions,
   Platform,
+  Dimensions,
   AsyncStorage
 } from 'react-native';
 
 import { Header } from 'react-native-elements';
-import AppleHealthKit from 'rn-apple-healthkit';
-import { RNHealthKit } from 'react-native-healthkit';
-import Icon from 'react-native-vector-icons/Ionicons.js';
 import Octicons from 'react-native-vector-icons/Octicons.js';
+import Icon from 'react-native-vector-icons/Ionicons.js';
+const { width: WIDTH } = Dimensions.get('window')
+let {iconSize} = 0
+
+if(Platform.OS === 'android'){
+	iconSize = 110;
+}
+else{
+	iconSize = 140;
+}
 
 export default class Profile extends Component {
-  constructor(props) {
+  constructor(props){
     super(props);
     this.state={
-      name: '',
-      _startDate: ''
+      name: ''
     }
   };
 
-  getStoredName() {
+  getStoredName(){
     AsyncStorage.getItem('name').then((name) => {
         this.setState({name: name, persistedName: name})
     })
+
   }
 
   componentWillMount(){
@@ -38,7 +45,6 @@ export default class Profile extends Component {
 
   render () {
     return (
-
       <SafeAreaView style= {styles.safeArea}>
         <View>
           <StatusBar barStyle='light-content' hidden= {false}/>
@@ -51,8 +57,10 @@ export default class Profile extends Component {
               <View style= {styles.container}>
                 <Octicons name='person' {...iconStyles} />
               </View>
+
             </View>
-            <Text style= {styles.header}> {this.state.persistedName} </Text>
+
+           <View><Text style= {styles.header}  adjustsFontSizeToFit > {this.state.persistedName} </Text></View>
           </View>
 
           <View style= {styles.infoContainer}>
@@ -75,11 +83,11 @@ export default class Profile extends Component {
       </SafeAreaView>
 
     );
-  }
+	}
 }
 
 const iconStyles = {
-  size: 80,
+  size: 70,
   color: '#21B6A8',
   flex: 1,
   borderRadius: 100,
@@ -106,6 +114,8 @@ const styles = StyleSheet.create ({
     alignSelf: 'stretch',
     backgroundColor: '#f2f2f2',
     padding: 20,
+    alignContent: 'center',
+    alignItems:'center'
   },
   infoContainer: {
     flex: 1,
@@ -127,8 +137,8 @@ const styles = StyleSheet.create ({
     alignContent: 'flex-start',
   },
   iconCircle: {
-    width: 140,
-    height: 140,
+    width: iconSize,
+    height: iconSize,
     borderRadius: 60,
     borderColor: '#21B6A8',
     borderWidth: 10,
@@ -141,15 +151,24 @@ const styles = StyleSheet.create ({
   container: {
     flex:1,
     alignItems: 'center',
+//   		borderWidth: 2,
     justifyContent: 'center'
+
+
   },
   header: {
     marginTop: 20,
+    width: 0.4*WIDTH,
+  //  borderWidth: 2,
     color: '#859593',
     fontFamily: 'Avenir',
     fontSize: 30,
     fontWeight: 'bold',
-    marginVertical: 15
+    marginVertical: 15,
+    textAlign:'center',
+    alignItems:'center',
+    alignSelf:'center'
+
   },
   text: {
     color: '#859593',

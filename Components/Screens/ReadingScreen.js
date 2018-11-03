@@ -4,10 +4,10 @@ import {
   StyleSheet,
   View,
   Text,
+  Platform,
   StatusBar,
   SafeAreaView,
   TextInput,
-  Platform,
   Dimensions,
   TouchableOpacity,
   Keyboard,
@@ -17,7 +17,6 @@ import {
 } from 'react-native';
 
 import { Header } from 'react-native-elements';
-import { RNHealthKit } from 'react-native-healthkit';
 import Entypo from 'react-native-vector-icons/Entypo.js';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5.js';
 
@@ -55,12 +54,23 @@ export default class ReadingScreen extends Component {
     var hour = new Date().getHours();
     var minutes = new Date().getMinutes();
     var seconds = new Date().getSeconds();
-    var date = year + '-' + month + '-' + day + ' ' + hour + ':' + minutes + ':' + seconds;
-    var currFormatDate = months[month - 1] + '\n' + day;
+    var date = year + '-' + month + '-' + day + '-' + hour + ':' + minutes + ':' + seconds;
+    var currFormatDate = months[month-1] + '\n' + day;
     this.setState({
       formatDate: currFormatDate
     })
+
     return date;
+  }
+
+  getFormatDate (date) {
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+    var day = date[0] + date[1]
+    var month = date[3] + date[4]
+    var index = parseInt(month)-1; // Get the month
+    return (months[index] + '\n' + day);
+
   }
 
   getReadingLevel(value) {
@@ -163,18 +173,6 @@ export default class ReadingScreen extends Component {
           formatDate: loadedFormatDate
         }
         console.log(newData);
-
-        // Writing the data to HealthKit
-        let healthData = {
-          HKType: 'BloodGlucose',
-          BloodGlucose: loadedReading,
-          Date: loadedDate,
-          Unit: 'mg/dL'
-        }
-        RNHealthKit.saveHealthData(healthData, (error, events) => {
-          console.log(events);
-        })
-
         AsyncStorage.getItem('storedData')
         .then((storedData) => {
           const dataContainer = storedData ? JSON.parse(storedData) : [];
@@ -195,9 +193,15 @@ export default class ReadingScreen extends Component {
     this.refs[fieldName].setNativeProps({text: ''});
   }
 
+  SampleFunction=(item)=>{
+
+    window.alert(item);
+
+  }
+
   render () {
     if(Platform.OS === 'android'){
-            return (
+      return (
       <SafeAreaView style= {styles.safeArea}>
         <View>
           <StatusBar barStyle='light-content' hidden= {false}/>
@@ -225,8 +229,10 @@ export default class ReadingScreen extends Component {
               <View style= {styles.buttoncontainer}>
                 <TouchableOpacity disabled= {!this.state.readingValidate ? true : false} onPress= {() => {this.saveReading()}}>
                 <View style= {styles.iconborder}>
-                  <FontAwesome5 name= 'syringe' {...iconStyles}/>
+                <View><FontAwesome5 name= 'syringe' {...iconStyles}/></View>
+
                 </View>
+
                 </TouchableOpacity>
               </View>
             </View>
@@ -278,6 +284,10 @@ export default class ReadingScreen extends Component {
     }
   
   }
+  
+
+
+
 }
 // <TouchableOpacity style= {{flex: 1, padding: 20}}onPress= {() => {this.clearData()}}>
 //     <Text style= {{color: '#d3d3d3', fontFamily: 'Avenir', textAlign: 'center'}}>Clear</Text>
@@ -290,7 +300,7 @@ const feedbackIcon = {
 const iconStyles = {
   size: 50,
   color: '#21B6A8',
-  flex: 1
+  flex: 1,
 };
 
 const styles = StyleSheet.create ({
@@ -372,7 +382,9 @@ const styles = StyleSheet.create ({
     shadowRadius: 2,
     elevation: 1,
     justifyContent: 'center',
-    alignItems: 'center'
+    alignItems: 'center',
+    alignSelf:'center'
+
   },
   buttoncontainer: {
     textAlign: 'center',

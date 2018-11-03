@@ -5,12 +5,22 @@ import {
   View,
   Text,
   StatusBar,
+  Platform,
   SafeAreaView,
   TouchableOpacity
 } from 'react-native';
 
 import { Header } from 'react-native-elements';
 import Octicons from 'react-native-vector-icons/Octicons.js';
+import LinearGradient from 'react-native-linear-gradient';
+
+let {paddingSize} = 0
+if(Platform.OS === 'android'){
+  paddingSize = 8
+}
+else{
+  paddingSize = 15
+}
 
 export default class ShareDataScreen extends Component {
 
@@ -45,7 +55,7 @@ export default class ShareDataScreen extends Component {
               </View>
             </View>
 
-            <View style= {{flex: 1, paddingTop: 50, textAlign: 'center'}}>
+            <View style= {{flex: 1 , paddingTop: 50, textAlign: 'center'}}>
               <TouchableOpacity style= {styles.touchablestyle} onPress={() => {this.exportData()}}>
                 <View style={styles.button}>
                   <Text style= {styles.buttontext}>Send Data</Text>
@@ -160,7 +170,7 @@ const styles = StyleSheet.create ({
     textAlign: 'center'
   },
   touchablestyle: {
-    paddingVertical: 15,
+    paddingVertical: paddingSize,
   }
 
 });
