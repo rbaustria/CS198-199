@@ -4,7 +4,7 @@ import { createMaterialBottomTabNavigator } from 'react-navigation-material-bott
 import Icon from 'react-native-vector-icons/Ionicons.js';
 
 import Profile from './Profile';
-import StreakScreen from './StreakScreen';
+import AchievementScreen from './AchievementScreen';
 import ReadingScreen from './ReadingScreen';
 import GraphScreen from './GraphScreen';
 import ShareDataScreen from './ShareDataScreen';
@@ -35,12 +35,11 @@ export default createMaterialBottomTabNavigator ({
       )
     }
   },
-  StreakScreen: { screen: StreakScreen,
+  Achievement: { screen: AchievementScreen,
     navigationOptions: {
-      title: 'Streak',
-      tabBarLabel: 'Streaks',
+      tabBarLabel: 'Achievements',
       tabBarIcon:({tintColor}) => (
-        <Icon name= 'ios-star' color= {tintColor} size= {24} />
+        <Icon name= 'ios-trophy' color= {tintColor} size= {24} />
       )
     }
   },
@@ -54,6 +53,7 @@ export default createMaterialBottomTabNavigator ({
   }
 }, {
   activeTintColor: '#21B6A8',
+  initialRouteName: 'Reading',
   barStyle: {
     backgroundColor: '#f6f4f5',
     shadowColor: '#d3d3d3',

@@ -62,6 +62,13 @@ export default class OnboardingScreens extends Component {
 
   onGetHealthInfo = () => {
 
+    let achievementInit = [];
+    let temp = '0'
+    let streak = '0'
+    AsyncStorage.setItem('achievements', JSON.stringify(achievementInit)).done();
+    AsyncStorage.setItem('recordedReading', temp).done();
+    AsyncStorage.setItem('streak', streak).done();
+
     if (Platform.OS === 'android') {
       // add GoogleFit access perms
     }

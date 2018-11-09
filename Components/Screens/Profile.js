@@ -22,18 +22,52 @@ export default class Profile extends Component {
     super(props);
     this.state={
       name: '',
-      _startDate: ''
+      _startDate: '',
+      count: '',
+      streak: '',
+      day: 'day',
+      days: 'days'
     }
   };
 
-  getStoredName() {
-    AsyncStorage.getItem('name').then((name) => {
-        this.setState({name: name, persistedName: name})
-    })
+  getStoredName = async () => {
+    try {
+      const tempName = await AsyncStorage.getItem('name');
+      const tempcount = await AsyncStorage.getItem('recordedReading');
+      const tempStreakCount = await AsyncStorage.getItem('streak');
+      // AsyncStorage.getItem('name')
+      // .then((name) => {
+      //     this.setState({name: name, persistedName: name})
+      // })
+      // AsyncStorage.getItem('recordedReading')
+      // .then((count) => {
+      //     this.setState({count: count, recordedReading: count})
+      // })
+      this.setState({
+        name: tempName,
+        count: tempcount,
+        streak: tempStreakCount
+      })
+    }
+    catch (error) {
+      window.alert(error);
+    }
   }
 
-  componentWillMount(){
+  isPlural(value) {
+    if (parseInt(value) == 1 || parseInt(value) == 0) {
+      return 'day';
+    }
+    return 'days';
+  }
+
+  componentDidMount(){
     this.getStoredName();
+    this.reloadProfileData = this.props.navigation.addListener('willFocus', this.getStoredName) // listener to reload graph data when tab is pressed
+  }
+
+  componentWillUnmount () {
+    this.reloadProfileData.remove();
   }
 
   render () {
@@ -52,23 +86,18 @@ export default class Profile extends Component {
                 <Octicons name='person' {...iconStyles} />
               </View>
             </View>
-            <Text style= {styles.header}> {this.state.persistedName} </Text>
+            <Text style= {styles.header}> {this.state.name} </Text>
           </View>
 
           <View style= {styles.infoContainer}>
             <View style= {styles.textcontainer}>
               <Octicons name='pencil' {...infoIconStyle} />
-              <Text style= {styles.text}> Recorded readings: </Text>
+              <Text style= {styles.text}> Recorded readings: {this.state.count} </Text>
             </View>
 
             <View style= {styles.textcontainer}>
               <Octicons name='star' {...infoIconStyle} />
-              <Text style= {styles.text}> Longest streak: </Text>
-            </View>
-
-            <View style= {styles.textcontainer}>
-              <Icon name='ios-trophy' {...infoIconStyle} />
-              <Text style= {styles.text}> Achievements: </Text>
+              <Text style= {styles.text}> Longest streak: {this.state.streak} {this.isPlural(this.state.streak)}</Text>
             </View>
           </View>
         </View>

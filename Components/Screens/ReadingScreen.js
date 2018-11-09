@@ -7,17 +7,18 @@ import {
   StatusBar,
   SafeAreaView,
   TextInput,
+  Platform,
   Dimensions,
   TouchableOpacity,
   Keyboard,
   TouchableWithoutFeedback,
   AsyncStorage,
-  DeviceEventEmitter,
-  Platform
+  DeviceEventEmitter
 } from 'react-native';
 
 import { Header } from 'react-native-elements';
 import { RNHealthKit } from 'react-native-healthkit';
+import AchievementScreen from './AchievementScreen.js';
 import Entypo from 'react-native-vector-icons/Entypo.js';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5.js';
 
@@ -36,7 +37,9 @@ export default class ReadingScreen extends Component {
       level: '',
       feedback: '',
       displayIcon: 'emoji-flirt',
-      readingValidate: false
+      displayLevel: '',
+      readingValidate: false,
+      count: ''
     }
 
   };
@@ -112,11 +115,10 @@ export default class ReadingScreen extends Component {
     ];
 
     var belowFeedbackArray = [
-      'I think you should sit down, reflect on your blood sugar and eat a chocolate bar.',
+      'I think you should sit down, reflect on your blood sugar and munch on some bananas.',
       'You need sugar too you know! Get that blood glucose to normal level so I can talk to you again.',
       'There’s a secret I want to tell you. But first, you should go yourself some sugar.',
       'I told you that too much sugar is not healthy. Did you think too less is better? Work on getting that to a normal level.'
-
     ];
 
     var index;
@@ -126,7 +128,8 @@ export default class ReadingScreen extends Component {
       var temp = aboveFeedbackArray[index];
       this.setState({
         feedback: temp,
-        displayIcon: 'emoji-sad'
+        displayIcon: 'emoji-sad',
+        displayLevel: 'Above'
       })
     }
     else if (value >= 70) {
@@ -134,7 +137,8 @@ export default class ReadingScreen extends Component {
       var temp = normalFeedbackArray[index];
       this.setState({
         feedback: temp,
-        displayIcon: 'emoji-happy'
+        displayIcon: 'emoji-happy',
+        displayLevel: 'Normal'
       })
     }
     else {
@@ -142,7 +146,8 @@ export default class ReadingScreen extends Component {
       var temp = belowFeedbackArray[index];
       this.setState({
         feedback: temp,
-        displayIcon: 'emoji-neutral'
+        displayIcon: 'emoji-neutral',
+        displayLevel: 'Below'
       })
     }
   }
@@ -160,21 +165,26 @@ export default class ReadingScreen extends Component {
           date: loadedDate,
           reading: loadedReading,
           level: loadedLevel,
-          formatDate: loadedFormatDate
+          formatDate: loadedFormatDate,
         }
         console.log(newData);
 
         // Writing the data to HealthKit
-        if (Platform.OS === 'ios') {
-          let healthData = {
-            HKType: 'BloodGlucose',
-            BloodGlucose: loadedReading,
-            Date: loadedDate,
-            Unit: 'mg/dL'
+        try {
+          if (Platform.OS === 'ios') {
+            let healthData = {
+              HKType: 'BloodGlucose',
+              BloodGlucose: loadedReading,
+              Date: loadedDate,
+              Unit: 'mg/dL'
+            }
+            RNHealthKit.saveHealthData(healthData, (error, events) => {
+              console.log(events);
+            })
           }
-          RNHealthKit.saveHealthData(healthData, (error, events) => {
-            console.log(events);
-          })
+        }
+        catch(error) {
+          console.log(error);
         }
 
         AsyncStorage.getItem('storedData')
@@ -187,10 +197,238 @@ export default class ReadingScreen extends Component {
         this.setState({
           readingValidate: false
         })
+        this.incrementCounter(); // Increment recordedReading counter
       }
       catch (error) {
         window.alert(error);
       }
+  }
+
+  // Check the previous month if it is currMonth - 1
+  checkMonth(value, value2) {
+    const months = [' ', ' ', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    var i, newInd, prevInd;
+    var first = value[0];
+    var second = value[1];
+    var third = value[2];
+    var month1 = first.concat(second.concat(third));
+
+    var first2 = value2[0];
+    var second2 = value2[1];
+    var third2 = value2[2];
+    var month2 = first2.concat(second2.concat(third2));
+
+    for (i=0; i<months.length; i++) {
+      if (months[i] == month1) {
+        newInd = i;
+      }
+    }
+
+    for (i=0; i<months.length; i++) {
+      if (months[i] == month2) {
+        prevInd = i;
+      }
+    }
+    if (newInd - prevInd == 1 || newInd - prevInd == -11) { // -11 for if dec -> jan
+      return true;
+    }
+    return false;
+  }
+
+  // Given the formatDate, return the integer day of the date
+  getDay (value) {
+    var day;
+    if (value.length > 5) {
+      var tens = value[4];
+      var ones = value[5];
+      day = parseInt(tens.concat(ones));
+    }
+    else if (value.length == 5) {
+      //get the last 1 digit
+      day = parseInt(value[4]);
+    }
+    return day;
+  }
+
+  checkStreak = async (value) => {
+    const storedData = await AsyncStorage.getItem('storedData');
+    const parsed = JSON.parse(storedData);
+    var arrLen = parsed.length-1;
+
+    // compareDay is the current day - 1 to check the streak
+    var compareDay;
+    var previousDay;
+    var previousDayLevel;
+
+    const streakCount = await AsyncStorage.getItem('streak');
+    const parsedStreakCount = JSON.parse(streakCount);
+
+    // Temporary streak count to be incremented based on the previous dates and levels
+    var tempStreakCount = parseInt(parsedStreakCount);
+
+    // If user's reading is normal, check streak
+    if (parsed[arrLen].level == 'Normal') {
+      // If user's first reading inputted is normal, increment the streak by 1
+      if (this.state.count == 1) {
+        tempStreakCount += 1;
+        AsyncStorage.setItem('streak', JSON.stringify(tempStreakCount)).done();
+      }
+      // If it's not the first entry
+      else {
+        // Check if there is another reading inputted for the same day, if there is, ignore it
+        var counter = 1;
+        while (parsed[arrLen].formatDate == parsed[arrLen-counter].formatDate) {
+          ++counter;
+          if (counter > arrLen) {
+            --counter;
+            break;
+          }
+        }
+
+        compareDay = this.getDay(parsed[arrLen].formatDate);
+        previousDay = this.getDay(parsed[arrLen-counter].formatDate);
+        previousDayLevel = parsed[arrLen-counter].level;
+
+        if (parsed[arrLen].formatDate == parsed[arrLen-1].formatDate ) {
+          if (parsed[arrLen].level == 'Normal' && parsed[arrLen-1].level == 'Normal') {
+
+          }
+          else {
+            tempStreakCount += 1;
+            AsyncStorage.setItem('streak', JSON.stringify(tempStreakCount)).done();
+          }
+        }
+        else {
+          // Check if month is the same or is the prev month
+          if ((parsed[arrLen].formatDate[0] == parsed[arrLen-counter].formatDate[0] && parsed[arrLen].formatDate[1] == parsed[arrLen-counter].formatDate[1] && parsed[arrLen].formatDate[2] == parsed[arrLen-counter].formatDate[2]) || this.checkMonth(parsed[arrLen],parsed[arrLen-counter])) { // add or
+            // If previous month is indeed the previous month of the new month, check if the current day is 1, if yes, increment
+            if (this.checkMonth(parsed[arrLen].formatDate, parsed[arrLen-counter].formatDate)) {
+              if (compareDay == 1 && previousDayLevel == 'Normal') {
+                tempStreakCount += 1;
+                AsyncStorage.setItem('streak', JSON.stringify(tempStreakCount)).done();
+              }
+              else if (compareDay == 1 && previousDayLevel != 'Normal') {
+                tempStreakCount = 1;
+                AsyncStorage.setItem('streak', JSON.stringify(tempStreakCount)).done();
+              }
+            }
+            else {
+              // Compare if lasted reading of the previous day has a Normal reading, if yes, increment
+              if ((compareDay-1) == previousDay && previousDayLevel == 'Normal') {
+                tempStreakCount += 1;
+                AsyncStorage.setItem('streak', JSON.stringify(tempStreakCount)).done();
+              }
+              else if ((compareDay-1) == previousDay && previousDayLevel != 'Normal') {
+                tempStreakCount = 1;
+                AsyncStorage.setItem('streak', JSON.stringify(tempStreakCount)).done();
+              }
+            }
+
+
+          }
+          // If month isnt the same && month is not the prev month (i.e. new entry is Feb, prev month must be Jan)
+          else {
+            tempStreakCount = 0;
+            AsyncStorage.setItem('streak', JSON.stringify(tempStreakCount)).done();
+          }
+        }
+      }
+    }
+    // Else user entered a reading that is below/above, reset streak.
+    else {
+      tempStreakCount = 0;
+      AsyncStorage.setItem('streak', JSON.stringify(tempStreakCount)).done();
+    }
+
+    // Check if on a 3 day normal streak
+    if (tempStreakCount == 3) {
+      var temp = await AsyncStorage.getItem('achievements');
+      var temp2 = JSON.parse(temp);
+
+      if (!temp2.includes('6')) {
+        window.alert('You got an achievement for having a normal blood sugar level streak for three (3) days! Check your achievements page!')
+        const tempArr = temp2;
+        tempArr.push('6');
+        AsyncStorage.setItem('achievements', JSON.stringify(tempArr));
+      }
+    }
+  }
+
+  incrementCounter = async () => {
+    try {
+      const storedCount = await AsyncStorage.getItem('recordedReading');
+      // String representation of the number of recorded readings.
+      const parsedCount = JSON.parse(storedCount);
+
+      // Increment it since a new reading is entered.
+      var tempCount = parseInt(parsedCount) + 1;
+      // Store the new count.
+      this.setState({
+        count: tempCount
+      })
+
+      AsyncStorage.setItem('recordedReading', JSON.stringify(tempCount)).done();
+      this.hasAchievement(tempCount);
+      this.checkStreak();
+    }
+    catch (error) {
+      console.log(error);
+    }
+  }
+
+  hasAchievement = async (value) => {
+    // Load achievement array and storedData to check achievements
+    var temp = await AsyncStorage.getItem('achievements');
+    const asyncData = await AsyncStorage.getItem('storedData');
+    var temp2 = JSON.parse(temp);
+    const parsed = JSON.parse(asyncData);
+    var arrLen = parsed.length-1
+
+    // Achievement 1 unlocked. Enter your first reading.
+    if (value == '1') {
+      window.alert('Horray! You got an achievement for entering your first reading! Check your achievements page!')
+      const tempArr = temp2;
+      tempArr.push('1');
+      AsyncStorage.setItem('achievements', JSON.stringify(tempArr));
+    }
+
+    // Achievement 2 unlocked. Enter 4 normal readings after an above reading.
+    if (value >= 4 && parsed[arrLen].level == 'Normal' && parsed[arrLen-1].level == 'Normal' && parsed[arrLen-2].level == 'Normal' && parsed[arrLen-3].level == 'Normal' && parsed[arrLen-4].level == 'Above' ) {
+      if (!temp2.includes('2')) {
+        window.alert('You got an achievement for entering four normal readings after being above normal! Check your achievements page!')
+        const tempArr = temp2;
+        tempArr.push('2');
+        AsyncStorage.setItem('achievements', JSON.stringify(tempArr));
+      }
+    }
+
+    // Achievement 3 unlocked. Enter 5 normal readings in a row.
+    if (value >= 5) {
+      if (!temp2.includes('3') && parsed[arrLen].level == 'Normal' && parsed[arrLen-1].level == 'Normal' && parsed[arrLen-2].level == 'Normal' && parsed[arrLen-3].level == 'Normal' && parsed[arrLen-4].level == 'Normal') {
+            window.alert('You got an achievement for entering five normal readings in a row! Check your achievements page!');
+            const tempArr = temp2;
+            tempArr.push('3');
+            AsyncStorage.setItem('achievements', JSON.stringify(tempArr));
+          }
+
+      // Achievement 4 unlocked. Enter 4 normal readings after being below normal.
+      if (!temp2.includes('4') && parsed[arrLen].level == 'Normal' && parsed[arrLen-1].level == 'Normal' && parsed[arrLen-2].level == 'Normal' && parsed[arrLen-3].level == 'Normal' && parsed[arrLen-4].level == 'Below') {
+            window.alert('You got an achievement for entering four normal readings after being below normal! Check your achievements page!');
+            const tempArr = temp2;
+            tempArr.push('4');
+            AsyncStorage.setItem('achievements', JSON.stringify(tempArr));
+          }
+    }
+
+    // Achievement 5 unlocked. Enter 10 normal readings in a row.
+    if (value >= 10) {
+      if (!temp2.includes('5') && parsed[arrLen].level == 'Normal' && parsed[arrLen-1].level == 'Normal' && parsed[arrLen-2].level == 'Normal' && parsed[arrLen-3].level == 'Normal' && parsed[arrLen-4].level == 'Normal' && parsed[arrLen-5].level == 'Normal' && parsed[arrLen-6].level == 'Normal' && parsed[arrLen-7].level == 'Normal' && parsed[arrLen-8].level == 'Normal' && parsed[arrLen-9].level == 'Normal') {
+          window.alert('You got an achievement for entering ten normal readings in a row! Check your achievements page!');
+          const tempArr = temp2;
+          tempArr.push('5');
+          AsyncStorage.setItem('achievements', JSON.stringify(tempArr));
+        }
+    }
   }
 
   clearText(fieldName) {
@@ -198,7 +436,8 @@ export default class ReadingScreen extends Component {
   }
 
   render () {
-    return (
+    if(Platform.OS === 'android'){
+            return (
       <SafeAreaView style= {styles.safeArea}>
         <View>
           <StatusBar barStyle='light-content' hidden= {false}/>
@@ -212,12 +451,49 @@ export default class ReadingScreen extends Component {
               </View>
               <Text style= {styles.text}>{this.state.feedback}</Text>
             </View>
-
             <View style= {styles.infocontainer}>
               <Text style= {styles.header}>Enter blood glucose:</Text>
+                <TextInput style= {styles.numericinput}
+                 ref={'GlucoseTextInput'}
+                 maxLength= {3}
+                 keyboardType= 'numeric'
+                 placeholder= 'Blood Glucose'
+                 onChangeText= {(reading) => this.validateReading(reading)}
+                 />
+              <View style= {styles.buttoncontainer}>
+                <TouchableOpacity disabled= {!this.state.readingValidate ? true : false} onPress= {() => {this.saveReading()}}>
                 <View style= {styles.iconborder}>
                   <FontAwesome5 name= 'syringe' {...iconStyles}/>
                 </View>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        </TouchableWithoutFeedback>
+      </SafeAreaView>
+    );
+    }
+    else{
+      return (
+      <SafeAreaView style= {styles.safeArea}>
+        <View>
+          <StatusBar barStyle='light-content' hidden= {false}/>
+          <Header placement= 'left' centerComponent={{ text: 'Add Reading', placement: 'center', style: { color: '#fff', fontFamily: 'Avenir', fontSize: 20, fontWeight: 'bold' } }} outerContainerStyles={{ backgroundColor: '#21B6A8', height: 60}}/>
+        </View>
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+          <View style= {styles.background}>
+            <View style= {styles.feedbackbackground}>
+              <View style= {{justifyContent: 'center', flexDirection: 'column'}}>
+                <Entypo name= {this.state.displayIcon} {...feedbackIcon}/>
+                <Text style= {styles.levelText}>{this.state.displayLevel}</Text>
+              </View>
+              <Text style= {styles.text}>{this.state.feedback}</Text>
+            </View>
+            <View style= {styles.infocontainer}>
+              <Text style= {styles.header}>Enter blood glucose:</Text>
+              <View style= {styles.iconborder}>
+                 <FontAwesome5 name= 'syringe' {...iconStyles}/>
+              </View>
                 <TextInput style= {styles.numericinput}
                  ref={'GlucoseTextInput'}
                  maxLength= {3}
@@ -237,6 +513,8 @@ export default class ReadingScreen extends Component {
         </TouchableWithoutFeedback>
       </SafeAreaView>
     );
+    }
+
   }
 }
 // <TouchableOpacity style= {{flex: 1, padding: 20}}onPress= {() => {this.clearData()}}>
@@ -298,7 +576,7 @@ const styles = StyleSheet.create ({
   text: {
     color: '#859593',
     fontFamily: 'Avenir',
-    fontSize: 18,
+    fontSize: 16,
     textAlign: 'left',
     paddingLeft: 5,
     paddingRight: 50,
@@ -357,6 +635,10 @@ const styles = StyleSheet.create ({
     fontWeight: 'bold',
     fontFamily: 'Avenir',
     textAlign: 'center',
+  },
+  levelText: {
+    color: '#859593',
+    fontFamily: 'Avenir',
   }
 
 });

@@ -44,15 +44,7 @@ export default class GraphScreen extends Component {
       const storedData = await AsyncStorage.getItem('storedData');
       const parsed = JSON.parse(storedData);
       const graphData = []
-      // const filler= [
-      //   { date: 'Jan 1.1', reading: -1, formatDate: ''},
-      //   { date: 'Jan 2.1', reading: -1, formatDate: ''},
-      //   { date: 'Jan 3.1', reading: -1, formatDate: ''},
-      //   { date: 'Jan 4.1', reading: -1, formatDate: ''},
-      //   { date: 'Jan 5.1', reading: -1, formatDate: ''},
-      //   { date: 'Jan 6.1', reading: -1, formatDate: ''}
-      //
-      // ]
+
       if (parsed != null) {
         console.log('Parsed Data: ', parsed);
         if (parsed.length < 6) {
@@ -84,7 +76,6 @@ export default class GraphScreen extends Component {
   render () {
     // Formatted Dates
     const dataX = this.state.parsedData.map(obj => obj.formatDate);
-    console.log(dataX);
 
     return (
       <SafeAreaView style= {styles.safeArea}>
@@ -92,9 +83,7 @@ export default class GraphScreen extends Component {
           <StatusBar barStyle='light-content' hidden= {false}/>
           <Header placement= 'left' centerComponent={{ text: 'Stats', placement: 'center', style: { color: '#fff', fontFamily: 'Avenir', fontSize: 20, fontWeight: 'bold' } }} outerContainerStyles={{ backgroundColor: '#21B6A8', height: 60}}/>
         </View>
-        <ScrollView style= {styles.scrollContainer}
-          bounces= {false}
-          >
+        <ScrollView style= {styles.scrollContainer}>
           <View style= {styles.background}>
               <VictoryChart style={{ parent: { maxWidth: "50%" } }}
               domainPadding={{x: [50, 0]}}
@@ -112,7 +101,7 @@ export default class GraphScreen extends Component {
                 />
                 <VictoryAxis
                   style={{
-                    axisLabel: {padding: 20}
+                    axisLabel: {padding: 20},
                   }}
                   tickFormat= {dataX}
                 />

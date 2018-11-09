@@ -6,7 +6,8 @@ import {
   Text,
   StatusBar,
   SafeAreaView,
-  TouchableOpacity
+  TouchableOpacity,
+  AsyncStorage
 } from 'react-native';
 
 import { Header } from 'react-native-elements';
@@ -22,8 +23,17 @@ export default class ShareDataScreen extends Component {
     window.alert('About');
   }
 
-  showAcknowledgement() {
+  showAcknowledgement = async () => {
     window.alert('Acknowledgement');
+    var temp = await AsyncStorage.getItem('achievements');
+    var parsed = JSON.parse(temp);
+
+    // Achievement 8 unclocked. View Acknowledgement.
+    if (!parsed.includes('8')) {
+      const tempArr = parsed;
+      tempArr.push('8');
+      AsyncStorage.setItem('achievements', JSON.stringify(tempArr));
+    }
   }
 
   showTerms() {
@@ -100,18 +110,6 @@ const styles = StyleSheet.create ({
     elevation: 1,
     padding: 20,
     marginBottom: 15
-  },
-  infocontainer: {
-    flex: 1,
-    alignSelf: 'stretch',
-    alignItems: 'center',
-    backgroundColor: 'white',
-    shadowColor: '#d3d3d3',
-    shadowOffset: { width: 0, height: 5 },
-    shadowOpacity: 0.8,
-    shadowRadius: 2,
-    elevation: 1,
-    padding: 10,
   },
   iconCircle: {
     width: 140,
