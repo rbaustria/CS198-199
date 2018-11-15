@@ -167,7 +167,7 @@ export default class ReadingScreen extends Component {
           level: loadedLevel,
           formatDate: loadedFormatDate,
         }
-        console.log(newData);
+        //console.log(newData);
 
         // Writing the data to HealthKit
         try {
@@ -191,6 +191,7 @@ export default class ReadingScreen extends Component {
         .then((storedData) => {
           const dataContainer = storedData ? JSON.parse(storedData) : [];
           dataContainer.push(newData);
+          console.log(dataContainer);
           AsyncStorage.setItem('storedData', JSON.stringify(dataContainer));
         });
         this.clearText('GlucoseTextInput')
@@ -490,7 +491,7 @@ export default class ReadingScreen extends Component {
               <Text style= {styles.text}>{this.state.feedback}</Text>
             </View>
             <View style= {styles.infocontainer}>
-              <Text style= {styles.header}>Enter blood glucose:</Text>
+              <Text style= {styles.header}>Enter blood glucossdae:</Text>
               <View style= {styles.iconborder}>
                  <FontAwesome5 name= 'syringe' {...iconStyles}/>
               </View>

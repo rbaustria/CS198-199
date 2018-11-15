@@ -4,11 +4,10 @@ import { createMaterialBottomTabNavigator } from 'react-navigation-material-bott
 import Icon from 'react-native-vector-icons/Ionicons.js';
 
 import Profile from './Profile';
-import AchievementScreen from './AchievementScreen';
-import ReadingScreen from './ReadingScreen';
 import GraphScreen from './GraphScreen';
+import ReadingScreen from './ReadingScreen';
 import ShareDataScreen from './ShareDataScreen';
-
+import AchievementScreen from './AchievementScreen';
 
 export default createMaterialBottomTabNavigator ({
   Profile: { screen: Profile,

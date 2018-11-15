@@ -7,24 +7,129 @@ import {
   StatusBar,
   SafeAreaView,
   TouchableOpacity,
-  AsyncStorage
+  AsyncStorage,
+  Modal,
+  Platform
 } from 'react-native';
 
+import AppleHealthKit from 'rn-apple-healthkit';
+import { RNHealthKit } from 'react-native-healthkit';
 import { Header } from 'react-native-elements';
+import { createStackNavigator } from 'react-navigation';
 import Octicons from 'react-native-vector-icons/Octicons.js';
 
 export default class ShareDataScreen extends Component {
+  constructor() {
+    super()
+
+    this.state = {
+      aboutIsVisible: false,
+      ackIsVisible: false,
+      termsIsVisible: false
+    }
+  }
 
   exportData() {
-    window.alert('Pressed');
+
+
+    if (Platform.OS === 'ios') {
+      let option = {
+            permissions: {
+                read: ['BiologicalSex', 'DateOfBirth', 'BloodGlucose'],
+            }
+        };
+      let temp = (new Date(2014,9,26)).toISOString();
+      let options = {
+        unit: 'mgPerdL',	// optional; default 'mmolPerL'
+        startDate: temp, // required
+        ascending: false, // optional; default false
+      };
+
+
+      const url = 'http://localhost:5000/logs';
+
+      const data = {
+        sex: null,
+        dob: null,
+        blood: null
+      };
+
+      const { initHealthKit, getBiologicalSex, getDateOfBirth, getBloodGlucoseSamples } = AppleHealthKit;
+
+      initHealthKit(option, (err, results) => {
+        getBiologicalSex(null, (err, sex) => {
+          data.sex = sex;
+          getDateOfBirth(null, (err, dob) => {
+            data.dob = dob;
+            getBloodGlucoseSamples(options, (err, blood) => {
+              data.blood = blood;
+
+              fetch(url, {
+                method: 'POST',
+                body: JSON.stringify(data),
+                headers: {
+                  'Content-Type': 'application/json'
+                }
+              }).then((resp) => console.log(resp), (err) => console.error(err));
+              // console.log(data);
+            });
+          });
+        });
+      });
+
+
+    }
+    else {
+      // If GoogleFit still not working, do some magic
+    }
+
+
+    // AppleHealthKit.initHealthKit(option, (err, results) => {
+    //       AppleHealthKit.getDateOfBirth(null, (err: Object, results: Object) => {
+    //         console.log('Birthday: ', results)
+    //       });
+    //
+    //       AppleHealthKit.getBloodGlucoseSamples(options, (err: Object, results: Array<Object>) => {
+    //         if (err) {
+    //           console.log('Error getting blood glucose.')
+    //           return;
+    //         }
+    //         console.log('Results: ', results)
+    //       });
+    // });
+
+
+
+    // AppleHealthKit.initHealthKit(option: Object, (err: string, results: Object) => {
+    //     if (err) {
+    //         console.log('error initializing Healthkit: ', err);
+    //         return;
+    //     }
+    //     AppleHealthKit.getDateOfBirth(null, (err: Object, results: Object) => {
+    //       console.log('Birthday: ',results)
+    //     });
+    //
+    //     AppleHealthKit.getBloodGlucoseSamples(options, (err: Object, results: Array<Object>) => {
+    //       if (err) {
+    //         console.log('Error getting blood glucose.')
+    //         return;
+    //       }
+    //       console.log('Results: ' ,results)
+    //     });
+    // });
   }
 
   showAbout() {
-    window.alert('About');
+    this.setState({
+      aboutIsVisible: true
+    })
   }
 
   showAcknowledgement = async () => {
-    window.alert('Acknowledgement');
+    this.setState({
+      ackIsVisible: true
+    })
+
     var temp = await AsyncStorage.getItem('achievements');
     var parsed = JSON.parse(temp);
 
@@ -37,7 +142,27 @@ export default class ShareDataScreen extends Component {
   }
 
   showTerms() {
-    window.alert('Terms and Privacy');
+    this.setState({
+      termsIsVisible: true
+    })
+  }
+
+  hideAbout() {
+    this.setState({
+      aboutIsVisible: false
+    })
+  }
+
+  hideAcknowledgement() {
+    this.setState({
+      ackIsVisible: false
+    })
+  }
+
+  hideTerms() {
+    this.setState({
+      termsIsVisible: false
+    })
   }
 
   render () {
@@ -70,6 +195,46 @@ export default class ShareDataScreen extends Component {
               <TouchableOpacity style= {styles.touchablestyle} onPress= {() => {this.showTerms()}}>
                 <Text style= {styles.text}>Terms and Privacy</Text>
               </TouchableOpacity>
+
+              <Modal visible= {this.state.aboutIsVisible}>
+                <SafeAreaView style= {styles.safeArea}>
+                  <StatusBar barStyle='light-content' hidden= {false}/>
+                  <Header placement= 'left' centerComponent={{ text: 'About', placement: 'center', style: { color: '#fff', fontFamily: 'Avenir', fontSize: 20, fontWeight: 'bold' } }} outerContainerStyles={{ backgroundColor: '#21B6A8', height: 60}}/>
+                  <View style= {styles.background}>
+                    <Text style= {styles.text}> Insert About here </Text>
+                      <View>
+                        <Octicons name='arrow-left' {...iconStyles} onPress= {() => {this.hideAbout()}}/>
+                      </View>
+                  </View>
+                </SafeAreaView>
+              </Modal>
+
+              <Modal visible= {this.state.ackIsVisible}>
+                <SafeAreaView style= {styles.safeArea}>
+                  <StatusBar barStyle='light-content' hidden= {false}/>
+                  <Header placement= 'left' centerComponent={{ text: 'Acknowledgement', placement: 'center', style: { color: '#fff', fontFamily: 'Avenir', fontSize: 20, fontWeight: 'bold' } }} outerContainerStyles={{ backgroundColor: '#21B6A8', height: 60}}/>
+                  <View style= {styles.background}>
+                    <Text style= {styles.text}> Insert Acknowledgement here </Text>
+                      <View>
+                        <Octicons name='arrow-left' {...iconStyles} onPress= {() => {this.hideAcknowledgement()}}/>
+                      </View>
+                  </View>
+                </SafeAreaView>
+              </Modal>
+
+              <Modal visible= {this.state.termsIsVisible}>
+                <SafeAreaView style= {styles.safeArea}>
+                  <StatusBar barStyle='light-content' hidden= {false}/>
+                  <Header placement= 'left' centerComponent={{ text: 'Terms and Privacy', placement: 'center', style: { color: '#fff', fontFamily: 'Avenir', fontSize: 20, fontWeight: 'bold' } }} outerContainerStyles={{ backgroundColor: '#21B6A8', height: 60}}/>
+                  <View style= {styles.background}>
+                    <Text style= {styles.text}> Insert Terms here </Text>
+                      <View>
+                        <Octicons name='arrow-left' {...iconStyles} onPress= {() => {this.hideTerms()}}/>
+                      </View>
+                  </View>
+                </SafeAreaView>
+              </Modal>
+
             </View>
           </View>
         </View>

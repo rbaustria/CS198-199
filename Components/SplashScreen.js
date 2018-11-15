@@ -38,8 +38,8 @@ export default class SplashScreen extends Component {
         return <App/>;
       }
       else {
-          //return <HomeScreen/>;
-          return <App/>;
+          return <HomeScreen/>;
+          //return <App/>;
       }
     }
 }
