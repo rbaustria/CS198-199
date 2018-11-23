@@ -25,12 +25,25 @@ export default class ShareDataScreen extends Component {
     this.state = {
       aboutIsVisible: false,
       ackIsVisible: false,
-      termsIsVisible: false
+      termsIsVisible: false,
+      aboutMsg: '',
+      ackMsg: '',
+      termsMsg: '',
     }
   }
 
-  exportData() {
+  exportData = async () => {
 
+    var temp = await AsyncStorage.getItem('achievements');
+    var parsed = JSON.parse(temp);
+
+    // Achievement 7 unclocked. View Acknowledgement.
+    if (!parsed.includes('7')) {
+      const tempArr = parsed;
+      tempArr.push('7');
+      AsyncStorage.setItem('achievements', JSON.stringify(tempArr));
+      window.alert('You got an achievement for participating in the study!')
+    }
 
     if (Platform.OS === 'ios') {
       let option = {
@@ -49,20 +62,21 @@ export default class ShareDataScreen extends Component {
       const url = 'http://localhost:5000/logs';
 
       const data = {
-        sex: null,
         dob: null,
-        blood: null
+        blood: null,
+        sex: null
       };
 
       const { initHealthKit, getBiologicalSex, getDateOfBirth, getBloodGlucoseSamples } = AppleHealthKit;
 
       initHealthKit(option, (err, results) => {
-        getBiologicalSex(null, (err, sex) => {
-          data.sex = sex;
-          getDateOfBirth(null, (err, dob) => {
-            data.dob = dob;
-            getBloodGlucoseSamples(options, (err, blood) => {
-              data.blood = blood;
+
+        getDateOfBirth(null, (err, dob) => {
+          data.dob = dob;
+          getBloodGlucoseSamples(options, (err, blood) => {
+            data.blood = blood;
+            getBiologicalSex(null, (err, sex) => {
+              data.sex = sex;
 
               fetch(url, {
                 method: 'POST',
@@ -71,63 +85,29 @@ export default class ShareDataScreen extends Component {
                   'Content-Type': 'application/json'
                 }
               }).then((resp) => console.log(resp), (err) => console.error(err));
-              // console.log(data);
+              //console.log(data);
             });
           });
         });
       });
-
-
+      window.alert('Your data has been sent! Thank you for participating in the study!')
     }
     else {
       // If GoogleFit still not working, do some magic
     }
-
-
-    // AppleHealthKit.initHealthKit(option, (err, results) => {
-    //       AppleHealthKit.getDateOfBirth(null, (err: Object, results: Object) => {
-    //         console.log('Birthday: ', results)
-    //       });
-    //
-    //       AppleHealthKit.getBloodGlucoseSamples(options, (err: Object, results: Array<Object>) => {
-    //         if (err) {
-    //           console.log('Error getting blood glucose.')
-    //           return;
-    //         }
-    //         console.log('Results: ', results)
-    //       });
-    // });
-
-
-
-    // AppleHealthKit.initHealthKit(option: Object, (err: string, results: Object) => {
-    //     if (err) {
-    //         console.log('error initializing Healthkit: ', err);
-    //         return;
-    //     }
-    //     AppleHealthKit.getDateOfBirth(null, (err: Object, results: Object) => {
-    //       console.log('Birthday: ',results)
-    //     });
-    //
-    //     AppleHealthKit.getBloodGlucoseSamples(options, (err: Object, results: Array<Object>) => {
-    //       if (err) {
-    //         console.log('Error getting blood glucose.')
-    //         return;
-    //       }
-    //       console.log('Results: ' ,results)
-    //     });
-    // });
   }
 
   showAbout() {
     this.setState({
-      aboutIsVisible: true
+      aboutIsVisible: true,
+      aboutMsg: 'This application was made by Ronnel Roi B. Austria and Deanne Faye C. Caingat as a requirement for their Special Problems class in the University of the Philippines Diliman.'
     })
   }
 
   showAcknowledgement = async () => {
     this.setState({
-      ackIsVisible: true
+      ackIsVisible: true,
+      ackMsg: 'We would like to thank our adviser, Professor Rommel Feria for guiding us in developing this application.'
     })
 
     var temp = await AsyncStorage.getItem('achievements');
@@ -143,25 +123,29 @@ export default class ShareDataScreen extends Component {
 
   showTerms() {
     this.setState({
-      termsIsVisible: true
+      termsIsVisible: true,
+      termsMsg: 'This application only collects the following health data: Date of birth, Sex, and Blood Glucose readings. \n The said data will be analyzed and kept among the researchers.'
     })
   }
 
   hideAbout() {
     this.setState({
-      aboutIsVisible: false
+      aboutIsVisible: false,
+      aboutMsg: ''
     })
   }
 
   hideAcknowledgement() {
     this.setState({
-      ackIsVisible: false
+      ackIsVisible: false,
+      ackMsg: ''
     })
   }
 
   hideTerms() {
     this.setState({
-      termsIsVisible: false
+      termsIsVisible: false,
+      termsMsg: ''
     })
   }
 
@@ -201,7 +185,7 @@ export default class ShareDataScreen extends Component {
                   <StatusBar barStyle='light-content' hidden= {false}/>
                   <Header placement= 'left' centerComponent={{ text: 'About', placement: 'center', style: { color: '#fff', fontFamily: 'Avenir', fontSize: 20, fontWeight: 'bold' } }} outerContainerStyles={{ backgroundColor: '#21B6A8', height: 60}}/>
                   <View style= {styles.background}>
-                    <Text style= {styles.text}> Insert About here </Text>
+                    <Text style= {styles.messageText}> {this.state.aboutMsg} </Text>
                       <View>
                         <Octicons name='arrow-left' {...iconStyles} onPress= {() => {this.hideAbout()}}/>
                       </View>
@@ -214,7 +198,7 @@ export default class ShareDataScreen extends Component {
                   <StatusBar barStyle='light-content' hidden= {false}/>
                   <Header placement= 'left' centerComponent={{ text: 'Acknowledgement', placement: 'center', style: { color: '#fff', fontFamily: 'Avenir', fontSize: 20, fontWeight: 'bold' } }} outerContainerStyles={{ backgroundColor: '#21B6A8', height: 60}}/>
                   <View style= {styles.background}>
-                    <Text style= {styles.text}> Insert Acknowledgement here </Text>
+                    <Text style= {styles.messageText}> {this.state.ackMsg} </Text>
                       <View>
                         <Octicons name='arrow-left' {...iconStyles} onPress= {() => {this.hideAcknowledgement()}}/>
                       </View>
@@ -227,7 +211,7 @@ export default class ShareDataScreen extends Component {
                   <StatusBar barStyle='light-content' hidden= {false}/>
                   <Header placement= 'left' centerComponent={{ text: 'Terms and Privacy', placement: 'center', style: { color: '#fff', fontFamily: 'Avenir', fontSize: 20, fontWeight: 'bold' } }} outerContainerStyles={{ backgroundColor: '#21B6A8', height: 60}}/>
                   <View style= {styles.background}>
-                    <Text style= {styles.text}> Insert Terms here </Text>
+                    <Text style= {styles.messageText}> {this.state.termsMsg} </Text>
                       <View>
                         <Octicons name='arrow-left' {...iconStyles} onPress= {() => {this.hideTerms()}}/>
                       </View>
@@ -321,6 +305,12 @@ const styles = StyleSheet.create ({
     fontFamily: 'Avenir',
     fontSize: 18,
     textAlign: 'center'
+  },
+  messageText: {
+    color: '#859593',
+    fontFamily: 'Avenir',
+    fontSize: 18,
+    textAlign: 'left'
   },
   touchablestyle: {
     paddingVertical: 15,

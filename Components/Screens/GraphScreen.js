@@ -76,6 +76,7 @@ export default class GraphScreen extends Component {
   render () {
     // Formatted Dates
     const dataX = this.state.parsedData.map(obj => obj.formatDate);
+    const dataValue = this.state.parsedData.map(obj => obj.date);
 
     return (
       <SafeAreaView style= {styles.safeArea}>
@@ -85,8 +86,8 @@ export default class GraphScreen extends Component {
         </View>
         <ScrollView style= {styles.scrollContainer}>
           <View style= {styles.background}>
-              <VictoryChart style={{ parent: { maxWidth: "50%" } }}
-              domainPadding={{x: [50, 0]}}
+              <VictoryChart
+              domainPadding={{ x: 15 }}
               height= {HEIGHT - 300}
               width= {WIDTH}
               >
@@ -100,16 +101,14 @@ export default class GraphScreen extends Component {
                   y= {(d) => d.reading}
                 />
                 <VictoryAxis
+                  fixLabelOverlap = {true}
                   style={{
-                    axisLabel: {padding: 20},
+                    tickLabels: {fontSize: 15, padding: 10}
                   }}
+                  tickValues= {dataValue}
                   tickFormat= {dataX}
                 />
-                <VictoryAxis dependentAxis
-                  style= {{
-                    axisLabel: { padding: 35}
-                  }}
-                />
+                <VictoryAxis dependentAxis/>
             </VictoryChart>
             <View style= {{flexDirection: 'column', justifyContent: 'center'}}>
               <View style= {styles.legendContainer}>

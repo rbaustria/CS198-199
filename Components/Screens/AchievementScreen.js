@@ -23,7 +23,7 @@ import LinearGradient from 'react-native-linear-gradient';
     4 - enter 4 normal blood readings after a below reading   /
     5 - enter 10 consecutive normal readings                  /
     6 - have a normal reading streak for 3 days               /
-    7 - send data to researchers
+    7 - send data to researchers                              /
     8 - read Acknowledgement                                  /
 */
 
@@ -134,7 +134,7 @@ export default class AchievementScreen extends Component {
         </View>
         <View style= {styles.background}>
           <View style= {styles.infoContainer}>
-            <Icon name= 'ios-trophy' color= '#21B6A8' size= {40} />
+            <Icon name= 'ios-trophy' color= '#21B6A8' size= {40} style = {{paddingLeft: 30}} />
             <Text style= {styles.text}>Welcome to your achievement case!</Text>
           </View>
           <View style= {styles.achievementContainer}>

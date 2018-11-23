@@ -243,6 +243,7 @@ export default class ReadingScreen extends Component {
       var tens = value[4];
       var ones = value[5];
       day = parseInt(tens.concat(ones));
+      console.log(day)
     }
     else if (value.length == 5) {
       //get the last 1 digit
@@ -312,9 +313,14 @@ export default class ReadingScreen extends Component {
                 tempStreakCount = 1;
                 AsyncStorage.setItem('streak', JSON.stringify(tempStreakCount)).done();
               }
+              else {
+                // If previous entry wasn't entered 1 day before current date, reset streak to 1
+                tempStreakCount = 1;
+                AsyncStorage.setItem('streak', JSON.stringify(tempStreakCount)).done();
+              }
             }
             else {
-              // Compare if lasted reading of the previous day has a Normal reading, if yes, increment
+              // Compare if last reading of the previous day has a Normal reading, if yes, increment
               if ((compareDay-1) == previousDay && previousDayLevel == 'Normal') {
                 tempStreakCount += 1;
                 AsyncStorage.setItem('streak', JSON.stringify(tempStreakCount)).done();
@@ -323,13 +329,17 @@ export default class ReadingScreen extends Component {
                 tempStreakCount = 1;
                 AsyncStorage.setItem('streak', JSON.stringify(tempStreakCount)).done();
               }
+              else {
+                // If previous entry wasn't entered 1 day before current date, reset streak to 1
+                tempStreakCount = 1;
+                AsyncStorage.setItem('streak', JSON.stringify(tempStreakCount)).done();
+              }
             }
-
 
           }
           // If month isnt the same && month is not the prev month (i.e. new entry is Feb, prev month must be Jan)
           else {
-            tempStreakCount = 0;
+            tempStreakCount = 1;
             AsyncStorage.setItem('streak', JSON.stringify(tempStreakCount)).done();
           }
         }
