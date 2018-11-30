@@ -16,8 +16,9 @@ import {
   TouchableWithoutFeedback,
   AsyncStorage
 } from 'react-native';
-import { createStackNavigator } from 'react-navigation';
+
 import AppleHealthKit from 'rn-apple-healthkit';
+import { createStackNavigator } from 'react-navigation';
 
 import Screen from './Screen';
 import HomeScreen from './HomeScreen';
@@ -156,7 +157,7 @@ const styles = StyleSheet.create({
   },
   inputcontainer: {
     alignItems: 'center',
-    paddingTop: 20
+    paddingTop: 20,
   },
   container: {
     flex: 1,

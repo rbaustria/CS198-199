@@ -5,39 +5,148 @@ import {
   View,
   Text,
   StatusBar,
-  Platform,
   SafeAreaView,
-  TouchableOpacity
+  TouchableOpacity,
+  AsyncStorage,
+  Modal,
+  Platform
 } from 'react-native';
 
+import AppleHealthKit from 'rn-apple-healthkit';
+import { RNHealthKit } from 'react-native-healthkit';
 import { Header } from 'react-native-elements';
+import { createStackNavigator } from 'react-navigation';
 import Octicons from 'react-native-vector-icons/Octicons.js';
-import LinearGradient from 'react-native-linear-gradient';
-
-let {paddingSize} = 0
-if(Platform.OS === 'android'){
-  paddingSize = 8
-}
-else{
-  paddingSize = 15
-}
 
 export default class ShareDataScreen extends Component {
+  constructor() {
+    super()
 
-  exportData() {
-    window.alert('Pressed');
+    this.state = {
+      aboutIsVisible: false,
+      ackIsVisible: false,
+      termsIsVisible: false,
+      aboutMsg: '',
+      ackMsg: '',
+      termsMsg: '',
+    }
+  }
+
+  exportData = async () => {
+
+    var temp = await AsyncStorage.getItem('achievements');
+    var parsed = JSON.parse(temp);
+
+    // Achievement 7 unclocked. View Acknowledgement.
+    if (!parsed.includes('7')) {
+      const tempArr = parsed;
+      tempArr.push('7');
+      AsyncStorage.setItem('achievements', JSON.stringify(tempArr));
+      window.alert('You got an achievement for participating in the study!')
+    }
+
+    if (Platform.OS === 'ios') {
+      let option = {
+            permissions: {
+                read: ['BiologicalSex', 'DateOfBirth', 'BloodGlucose'],
+            }
+        };
+      let temp = (new Date(2014,9,26)).toISOString();
+      let options = {
+        unit: 'mgPerdL',	// optional; default 'mmolPerL'
+        startDate: temp, // required
+        ascending: false, // optional; default false
+      };
+
+
+      const url = 'http://localhost:5000/logs';
+
+      const data = {
+        dob: null,
+        blood: null,
+        sex: null
+      };
+
+      const { initHealthKit, getBiologicalSex, getDateOfBirth, getBloodGlucoseSamples } = AppleHealthKit;
+
+      initHealthKit(option, (err, results) => {
+
+        getDateOfBirth(null, (err, dob) => {
+          data.dob = dob;
+          getBloodGlucoseSamples(options, (err, blood) => {
+            data.blood = blood;
+            getBiologicalSex(null, (err, sex) => {
+              data.sex = sex;
+
+              fetch(url, {
+                method: 'POST',
+                body: JSON.stringify(data),
+                headers: {
+                  'Content-Type': 'application/json'
+                }
+              }).then((resp) => console.log(resp), (err) => console.error(err));
+              //console.log(data);
+            });
+          });
+        });
+      });
+      window.alert('Your data has been sent! Thank you for participating in the study!')
+    }
+    else {
+      // If GoogleFit still not working, do some magic
+    }
   }
 
   showAbout() {
-    window.alert('About');
+    this.setState({
+      aboutIsVisible: true,
+      aboutMsg: 'This application was made by Ronnel Roi B. Austria and Deanne Faye C. Caingat as a requirement for their Special Problems class in the University of the Philippines Diliman.'
+    })
   }
 
-  showAcknowledgement() {
-    window.alert('Acknowledgement');
+  showAcknowledgement = async () => {
+    this.setState({
+      ackIsVisible: true,
+      ackMsg: 'We would like to thank our adviser, Professor Rommel Feria for guiding us in developing this application.'
+    })
+
+    var temp = await AsyncStorage.getItem('achievements');
+    var parsed = JSON.parse(temp);
+
+    // Achievement 8 unclocked. View Acknowledgement.
+    if (!parsed.includes('8')) {
+      const tempArr = parsed;
+      tempArr.push('8');
+      AsyncStorage.setItem('achievements', JSON.stringify(tempArr));
+    }
   }
 
   showTerms() {
-    window.alert('Terms and Privacy');
+    this.setState({
+      termsIsVisible: true,
+      termsMsg: 'This application only collects the following health data: Date of birth, Sex, and Blood Glucose readings. \n The said data will be analyzed and kept among the researchers.'
+    })
+  }
+
+  hideAbout() {
+    this.setState({
+      aboutIsVisible: false,
+      aboutMsg: ''
+    })
+  }
+
+  hideAcknowledgement() {
+    this.setState({
+      ackIsVisible: false,
+      ackMsg: ''
+    })
+  }
+
+  hideTerms() {
+    this.setState({
+      termsIsVisible: false,
+      termsMsg: ''
+    })
   }
 
   render () {
@@ -55,7 +164,7 @@ export default class ShareDataScreen extends Component {
               </View>
             </View>
 
-            <View style= {{flex: 1 , paddingTop: 50, textAlign: 'center'}}>
+            <View style= {{flex: 1, paddingTop: 50, textAlign: 'center'}}>
               <TouchableOpacity style= {styles.touchablestyle} onPress={() => {this.exportData()}}>
                 <View style={styles.button}>
                   <Text style= {styles.buttontext}>Send Data</Text>
@@ -70,6 +179,46 @@ export default class ShareDataScreen extends Component {
               <TouchableOpacity style= {styles.touchablestyle} onPress= {() => {this.showTerms()}}>
                 <Text style= {styles.text}>Terms and Privacy</Text>
               </TouchableOpacity>
+
+              <Modal visible= {this.state.aboutIsVisible}>
+                <SafeAreaView style= {styles.safeArea}>
+                  <StatusBar barStyle='light-content' hidden= {false}/>
+                  <Header placement= 'left' centerComponent={{ text: 'About', placement: 'center', style: { color: '#fff', fontFamily: 'Avenir', fontSize: 20, fontWeight: 'bold' } }} outerContainerStyles={{ backgroundColor: '#21B6A8', height: 60}}/>
+                  <View style= {styles.background}>
+                    <Text style= {styles.messageText}> {this.state.aboutMsg} </Text>
+                      <View>
+                        <Octicons name='arrow-left' {...iconStyles} onPress= {() => {this.hideAbout()}}/>
+                      </View>
+                  </View>
+                </SafeAreaView>
+              </Modal>
+
+              <Modal visible= {this.state.ackIsVisible}>
+                <SafeAreaView style= {styles.safeArea}>
+                  <StatusBar barStyle='light-content' hidden= {false}/>
+                  <Header placement= 'left' centerComponent={{ text: 'Acknowledgement', placement: 'center', style: { color: '#fff', fontFamily: 'Avenir', fontSize: 20, fontWeight: 'bold' } }} outerContainerStyles={{ backgroundColor: '#21B6A8', height: 60}}/>
+                  <View style= {styles.background}>
+                    <Text style= {styles.messageText}> {this.state.ackMsg} </Text>
+                      <View>
+                        <Octicons name='arrow-left' {...iconStyles} onPress= {() => {this.hideAcknowledgement()}}/>
+                      </View>
+                  </View>
+                </SafeAreaView>
+              </Modal>
+
+              <Modal visible= {this.state.termsIsVisible}>
+                <SafeAreaView style= {styles.safeArea}>
+                  <StatusBar barStyle='light-content' hidden= {false}/>
+                  <Header placement= 'left' centerComponent={{ text: 'Terms and Privacy', placement: 'center', style: { color: '#fff', fontFamily: 'Avenir', fontSize: 20, fontWeight: 'bold' } }} outerContainerStyles={{ backgroundColor: '#21B6A8', height: 60}}/>
+                  <View style= {styles.background}>
+                    <Text style= {styles.messageText}> {this.state.termsMsg} </Text>
+                      <View>
+                        <Octicons name='arrow-left' {...iconStyles} onPress= {() => {this.hideTerms()}}/>
+                      </View>
+                  </View>
+                </SafeAreaView>
+              </Modal>
+
             </View>
           </View>
         </View>
@@ -110,18 +259,6 @@ const styles = StyleSheet.create ({
     elevation: 1,
     padding: 20,
     marginBottom: 15
-  },
-  infocontainer: {
-    flex: 1,
-    alignSelf: 'stretch',
-    alignItems: 'center',
-    backgroundColor: 'white',
-    shadowColor: '#d3d3d3',
-    shadowOffset: { width: 0, height: 5 },
-    shadowOpacity: 0.8,
-    shadowRadius: 2,
-    elevation: 1,
-    padding: 10,
   },
   iconCircle: {
     width: 140,
@@ -169,8 +306,14 @@ const styles = StyleSheet.create ({
     fontSize: 18,
     textAlign: 'center'
   },
+  messageText: {
+    color: '#859593',
+    fontFamily: 'Avenir',
+    fontSize: 18,
+    textAlign: 'left'
+  },
   touchablestyle: {
-    paddingVertical: paddingSize,
+    paddingVertical: 8,
   }
 
 });

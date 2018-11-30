@@ -13,7 +13,6 @@ import { createStackNavigator } from 'react-navigation';
 export default class EditInfoHeader extends Component {
   render () {
     return (
-      <LinearGradient colors={['#02aab0', '#00cdac']} style={styles.linearGradient}>
         <View style= {styles.header}>
           <Text style= {styles.label}>About you</Text>
           <View style= {styles.iconWarp}>
@@ -22,7 +21,6 @@ export default class EditInfoHeader extends Component {
             </View>
           </View>
         </View>
-      </LinearGradient>
     );
   }
 }
@@ -31,7 +29,7 @@ export default class EditInfoHeader extends Component {
 const iconStyles = {
   size: 80,
   //color: '#128a08',
-  color: '#FFFFFF',
+  color: '#21B6A8',
   flex: 1,
   borderRadius: 100,
   borderColor: '#000000',
@@ -70,7 +68,7 @@ const styles = StyleSheet.create({
     width: 140,
     height: 140,
     borderRadius: 60,
-    borderColor: '#FFFFFF',
+    borderColor: '#21B6A8',
     borderWidth: 10,
     shadowColor: '#d3d3d3',
     shadowOffset: { width: 0, height: 5 },
@@ -80,7 +78,7 @@ const styles = StyleSheet.create({
   },
   label: {
     marginTop: 20,
-    color: '#FFFFFF',
+    color: '#21B6A8',
     fontFamily: 'Avenir',
     fontSize: 30,
     fontWeight: 'bold',

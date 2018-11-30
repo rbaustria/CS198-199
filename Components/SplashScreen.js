@@ -13,7 +13,9 @@ import EditInfo from './Screens/EditInfo';
 export default class SplashScreen extends Component {
     constructor(props){
       super();
-        this.state = {firstLaunch: null};
+        this.state = {
+          firstLaunch: null,
+        };
     }
 
     componentDidMount() {
@@ -33,7 +35,7 @@ export default class SplashScreen extends Component {
           return null;
       }
       else if (this.state.firstLaunch == 'true') {
-          return <App/>;
+        return <App/>;
       }
       else {
           return <HomeScreen/>;

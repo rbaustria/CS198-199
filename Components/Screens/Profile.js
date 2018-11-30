@@ -6,45 +6,87 @@ import {
   Text,
   StatusBar,
   SafeAreaView,
-  Platform,
   Dimensions,
+  Platform,
   AsyncStorage
 } from 'react-native';
 
 import { Header } from 'react-native-elements';
-import Octicons from 'react-native-vector-icons/Octicons.js';
+import AppleHealthKit from 'rn-apple-healthkit';
+import { RNHealthKit } from 'react-native-healthkit';
 import Icon from 'react-native-vector-icons/Ionicons.js';
-const { width: WIDTH } = Dimensions.get('window')
-let {iconSize} = 0
+import Octicons from 'react-native-vector-icons/Octicons.js';
 
-if(Platform.OS === 'android'){
-	iconSize = 110;
+
+let iconCircleSize = 0;
+let iconStyleSize = 0;
+
+if (Platform.OS === 'android'){
+	iconCircleSize = 110;
+	iconStyleSize = 60;
+
 }
 else{
-	iconSize = 140;
+	iconCircleSize = 140;
+	iconStyleSize = 80;
 }
 
 export default class Profile extends Component {
-  constructor(props){
+  constructor(props) {
     super(props);
     this.state={
-      name: ''
+      name: '',
+      _startDate: '',
+      count: '',
+      streak: '',
+      day: 'day',
+      days: 'days'
     }
   };
 
-  getStoredName(){
-    AsyncStorage.getItem('name').then((name) => {
-        this.setState({name: name, persistedName: name})
-    })
-
+  getStoredName = async () => {
+    try {
+      const tempName = await AsyncStorage.getItem('name');
+      const tempcount = await AsyncStorage.getItem('recordedReading');
+      const tempStreakCount = await AsyncStorage.getItem('streak');
+      // AsyncStorage.getItem('name')
+      // .then((name) => {
+      //     this.setState({name: name, persistedName: name})
+      // })
+      // AsyncStorage.getItem('recordedReading')
+      // .then((count) => {
+      //     this.setState({count: count, recordedReading: count})
+      // })
+      this.setState({
+        name: tempName,
+        count: tempcount,
+        streak: tempStreakCount
+      })
+    }
+    catch (error) {
+      window.alert(error);
+    }
   }
 
-  componentWillMount(){
+  isPlural(value) {
+    if (parseInt(value) == 1 || parseInt(value) == 0) {
+      return 'day';
+    }
+    return 'days';
+  }
+
+  componentDidMount(){
     this.getStoredName();
+    this.reloadProfileData = this.props.navigation.addListener('willFocus', this.getStoredName) // listener to reload graph data when tab is pressed
+  }
+
+  componentWillUnmount () {
+    this.reloadProfileData.remove();
   }
 
   render () {
     return (
+
       <SafeAreaView style= {styles.safeArea}>
         <View>
           <StatusBar barStyle='light-content' hidden= {false}/>
@@ -57,37 +99,30 @@ export default class Profile extends Component {
               <View style= {styles.container}>
                 <Octicons name='person' {...iconStyles} />
               </View>
-
             </View>
-
-           <View><Text style= {styles.header}  adjustsFontSizeToFit > {this.state.persistedName} </Text></View>
+            <Text style= {styles.header}> {this.state.name} </Text>
           </View>
 
           <View style= {styles.infoContainer}>
             <View style= {styles.textcontainer}>
               <Octicons name='pencil' {...infoIconStyle} />
-              <Text style= {styles.text}> Recorded readings: </Text>
+              <Text style= {styles.text}> Recorded readings: {this.state.count} </Text>
             </View>
 
             <View style= {styles.textcontainer}>
               <Octicons name='star' {...infoIconStyle} />
-              <Text style= {styles.text}> Longest streak: </Text>
-            </View>
-
-            <View style= {styles.textcontainer}>
-              <Icon name='ios-trophy' {...infoIconStyle} />
-              <Text style= {styles.text}> Achievements: </Text>
+              <Text style= {styles.text}> Longest streak: {this.state.streak} {this.isPlural(this.state.streak)}</Text>
             </View>
           </View>
         </View>
       </SafeAreaView>
 
     );
-	}
+  }
 }
 
 const iconStyles = {
-  size: 70,
+  size: iconStyleSize,
   color: '#21B6A8',
   flex: 1,
   borderRadius: 100,
@@ -114,8 +149,6 @@ const styles = StyleSheet.create ({
     alignSelf: 'stretch',
     backgroundColor: '#f2f2f2',
     padding: 20,
-    alignContent: 'center',
-    alignItems:'center'
   },
   infoContainer: {
     flex: 1,
@@ -137,8 +170,8 @@ const styles = StyleSheet.create ({
     alignContent: 'flex-start',
   },
   iconCircle: {
-    width: iconSize,
-    height: iconSize,
+    width: iconCircleSize,
+    height: iconCircleSize,
     borderRadius: 60,
     borderColor: '#21B6A8',
     borderWidth: 10,
@@ -151,24 +184,15 @@ const styles = StyleSheet.create ({
   container: {
     flex:1,
     alignItems: 'center',
-//   		borderWidth: 2,
     justifyContent: 'center'
-
-
   },
   header: {
     marginTop: 20,
-    width: 0.4*WIDTH,
-  //  borderWidth: 2,
     color: '#859593',
     fontFamily: 'Avenir',
     fontSize: 30,
     fontWeight: 'bold',
-    marginVertical: 15,
-    textAlign:'center',
-    alignItems:'center',
-    alignSelf:'center'
-
+    marginVertical: 15
   },
   text: {
     color: '#859593',
