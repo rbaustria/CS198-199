@@ -46,54 +46,71 @@ export default class ShareDataScreen extends Component {
     }
 
     if (Platform.OS === 'ios') {
-      let option = {
-            permissions: {
-                read: ['BiologicalSex', 'DateOfBirth', 'BloodGlucose'],
-            }
+      try {
+        let option = {
+              permissions: {
+                  read: ['BiologicalSex', 'DateOfBirth', 'BloodGlucose'],
+              }
+          };
+        let temp = (new Date(2014,9,26)).toISOString();
+        let options = {
+          unit: 'mgPerdL',	// optional; default 'mmolPerL'
+          startDate: temp, // required
+          ascending: false, // optional; default false
         };
-      let temp = (new Date(2014,9,26)).toISOString();
-      let options = {
-        unit: 'mgPerdL',	// optional; default 'mmolPerL'
-        startDate: temp, // required
-        ascending: false, // optional; default false
-      };
 
 
-      const url = 'http://localhost:5000/logs';
+        const url = 'http://localhost:5000/logs';
 
-      const data = {
-        dob: null,
-        blood: null,
-        sex: null
-      };
+        const data = {
+          dob: null,
+          blood: null,
+          sex: null
+        };
 
-      const { initHealthKit, getBiologicalSex, getDateOfBirth, getBloodGlucoseSamples } = AppleHealthKit;
+        const { initHealthKit, getBiologicalSex, getDateOfBirth, getBloodGlucoseSamples } = AppleHealthKit;
 
-      initHealthKit(option, (err, results) => {
+        initHealthKit(option, (err, results) => {
 
-        getDateOfBirth(null, (err, dob) => {
-          data.dob = dob;
-          getBloodGlucoseSamples(options, (err, blood) => {
-            data.blood = blood;
-            getBiologicalSex(null, (err, sex) => {
-              data.sex = sex;
+          getDateOfBirth(null, (err, dob) => {
+            data.dob = dob;
+            getBloodGlucoseSamples(options, (err, blood) => {
+              data.blood = blood;
+              getBiologicalSex(null, (err, sex) => {
+                data.sex = sex;
 
-              fetch(url, {
-                method: 'POST',
-                body: JSON.stringify(data),
-                headers: {
-                  'Content-Type': 'application/json'
-                }
-              }).then((resp) => console.log(resp), (err) => console.error(err));
-              //console.log(data);
+                fetch(url, {
+                  method: 'POST',
+                  body: JSON.stringify(data),
+                  headers: {
+                    'Content-Type': 'application/json'
+                  }
+                }).then((resp) => console.log(resp), (err) => console.error(err));
+                //console.log(data);
+              });
             });
           });
         });
-      });
-      window.alert('Your data has been sent! Thank you for participating in the study!')
+
+        window.alert('Your data has been sent! Thank you for participating in the study!')
+      }
+      catch(error) {
+        console.log(error)
+      }
     }
     else {
-      // If GoogleFit still not working, do some magic
+      // No integration with GoogleFit, only export app data.
+      const url = 'http://localhost:5000/logs';
+      const storedData = await AsyncStorage.getItem('storedData');
+      const parsed = JSON.parse(storedData);
+
+      // Change dob and sex based on the info entered in EditInfo.js screen
+      const data = {
+        dob: null,
+        blood: parsed,
+        sex: null
+      };
+
     }
   }
 
