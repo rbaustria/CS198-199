@@ -12,6 +12,7 @@ import {
   Platform
 } from 'react-native';
 
+import email from 'react-native-email';
 import AppleHealthKit from 'rn-apple-healthkit';
 import { RNHealthKit } from 'react-native-healthkit';
 import { Header } from 'react-native-elements';
@@ -46,6 +47,7 @@ export default class ShareDataScreen extends Component {
     }
 
     if (Platform.OS === 'ios') {
+      const to = ['dccaingat@up.edu.ph']
       try {
         let option = {
               permissions: {
@@ -60,7 +62,7 @@ export default class ShareDataScreen extends Component {
         };
 
 
-        const url = 'http://localhost:5000/logs';
+        // const url = 'http://localhost:5000/logs';
 
         const data = {
           dob: null,
@@ -79,13 +81,18 @@ export default class ShareDataScreen extends Component {
               getBiologicalSex(null, (err, sex) => {
                 data.sex = sex;
 
-                fetch(url, {
-                  method: 'POST',
-                  body: JSON.stringify(data),
-                  headers: {
-                    'Content-Type': 'application/json'
-                  }
-                }).then((resp) => console.log(resp), (err) => console.error(err));
+                email(to, {
+                    subject: 'Sugar Health Data',
+                    body: JSON.stringify(data)
+                }).catch(console.error)
+
+                // fetch(url, {
+                //   method: 'POST',
+                //   body: JSON.stringify(data),
+                //   headers: {
+                //     'Content-Type': 'application/json'
+                //   }
+                // }).then((resp) => console.log(resp), (err) => console.error(err));
                 //console.log(data);
               });
             });
@@ -100,17 +107,23 @@ export default class ShareDataScreen extends Component {
     }
     else {
       // No integration with GoogleFit, only export app data.
-      const url = 'http://localhost:5000/logs';
+
+      const gender = await AsyncStorage.getItem('gender');
+      const stored_dob = await AsyncStorage.getItem('dob');
       const storedData = await AsyncStorage.getItem('storedData');
       const parsed = JSON.parse(storedData);
 
       // Change dob and sex based on the info entered in EditInfo.js screen
       const data = {
-        dob: null,
+        dob: stored_dob,
         blood: parsed,
-        sex: null
+        sex: gender
       };
 
+      email(to, {
+          subject: 'Sugar Health Data',
+          body: JSON.stringify(data)
+      }).catch(console.error)
     }
   }
 

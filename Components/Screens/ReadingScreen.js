@@ -291,6 +291,7 @@ export default class ReadingScreen extends Component {
         compareDay = this.getDay(parsed[arrLen].formatDate);
         previousDay = this.getDay(parsed[arrLen-counter].formatDate);
         previousDayLevel = parsed[arrLen-counter].level;
+        console.log("LEVEL: ", previousDayLevel)
 
         if (parsed[arrLen].formatDate == parsed[arrLen-1].formatDate ) {
           if (parsed[arrLen].level == 'Normal' && parsed[arrLen-1].level == 'Normal') {
