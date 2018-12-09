@@ -86,14 +86,6 @@ export default class ShareDataScreen extends Component {
                     body: JSON.stringify(data)
                 }).catch(console.error)
 
-                // fetch(url, {
-                //   method: 'POST',
-                //   body: JSON.stringify(data),
-                //   headers: {
-                //     'Content-Type': 'application/json'
-                //   }
-                // }).then((resp) => console.log(resp), (err) => console.error(err));
-                //console.log(data);
               });
             });
           });
