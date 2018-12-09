@@ -119,7 +119,6 @@ export default class ShareDataScreen extends Component {
         blood: parsed,
         sex: gender
       };
-
       email(to, {
           subject: 'Sugar Health Data',
           body: JSON.stringify(data)
