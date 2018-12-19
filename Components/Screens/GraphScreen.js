@@ -87,7 +87,7 @@ export default class GraphScreen extends Component {
         <ScrollView style= {styles.scrollContainer}>
           <View style= {styles.background}>
               <VictoryChart
-              domainPadding={{ x: 15 }}
+              domainPadding={{ x: 20 }}
               height= {HEIGHT - 300}
               width= {WIDTH}
               >

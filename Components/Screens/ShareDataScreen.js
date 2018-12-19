@@ -12,12 +12,20 @@ import {
   Platform
 } from 'react-native';
 
+import email from 'react-native-email';
 import AppleHealthKit from 'rn-apple-healthkit';
 import { RNHealthKit } from 'react-native-healthkit';
 import { Header } from 'react-native-elements';
 import { createStackNavigator } from 'react-navigation';
 import Octicons from 'react-native-vector-icons/Octicons.js';
+let paddingSize = 0;
 
+if(Platform.OS === 'android'){
+  paddingSize = 8;
+}
+else{
+  paddingSize = 15;
+}
 export default class ShareDataScreen extends Component {
   constructor() {
     super()
@@ -46,54 +54,74 @@ export default class ShareDataScreen extends Component {
     }
 
     if (Platform.OS === 'ios') {
-      let option = {
-            permissions: {
-                read: ['BiologicalSex', 'DateOfBirth', 'BloodGlucose'],
-            }
+      const to = ['rbaustria@up.edu.ph']
+      try {
+        let option = {
+              permissions: {
+                  read: ['BiologicalSex', 'DateOfBirth', 'BloodGlucose'],
+              }
+          };
+        let temp = (new Date(2014,9,26)).toISOString();
+        let options = {
+          unit: 'mgPerdL',	// optional; default 'mmolPerL'
+          startDate: temp, // required
+          ascending: false, // optional; default false
         };
-      let temp = (new Date(2014,9,26)).toISOString();
-      let options = {
-        unit: 'mgPerdL',	// optional; default 'mmolPerL'
-        startDate: temp, // required
-        ascending: false, // optional; default false
-      };
 
 
-      const url = 'http://localhost:5000/logs';
+        // const url = 'http://localhost:5000/logs';
 
-      const data = {
-        dob: null,
-        blood: null,
-        sex: null
-      };
+        const data = {
+          dob: null,
+          blood: null,
+          sex: null
+        };
 
-      const { initHealthKit, getBiologicalSex, getDateOfBirth, getBloodGlucoseSamples } = AppleHealthKit;
+        const { initHealthKit, getBiologicalSex, getDateOfBirth, getBloodGlucoseSamples } = AppleHealthKit;
 
-      initHealthKit(option, (err, results) => {
+        initHealthKit(option, (err, results) => {
 
-        getDateOfBirth(null, (err, dob) => {
-          data.dob = dob;
-          getBloodGlucoseSamples(options, (err, blood) => {
-            data.blood = blood;
-            getBiologicalSex(null, (err, sex) => {
-              data.sex = sex;
+          getDateOfBirth(null, (err, dob) => {
+            data.dob = dob;
+            getBloodGlucoseSamples(options, (err, blood) => {
+              data.blood = blood;
+              getBiologicalSex(null, (err, sex) => {
+                data.sex = sex;
 
-              fetch(url, {
-                method: 'POST',
-                body: JSON.stringify(data),
-                headers: {
-                  'Content-Type': 'application/json'
-                }
-              }).then((resp) => console.log(resp), (err) => console.error(err));
-              //console.log(data);
+                email(to, {
+                    subject: 'Sugar Health Data',
+                    body: JSON.stringify(data)
+                }).catch(console.error)
+
+              });
             });
           });
         });
-      });
-      window.alert('Your data has been sent! Thank you for participating in the study!')
+
+        window.alert('Your data has been sent! Thank you for participating in the study!')
+      }
+      catch(error) {
+        console.log(error)
+      }
     }
     else {
-      // If GoogleFit still not working, do some magic
+      // No integration with GoogleFit, only export app data.
+      const to = ['rbaustria@up.edu.ph']
+      const gender = await AsyncStorage.getItem('gender');
+      const stored_dob = await AsyncStorage.getItem('dob');
+      const storedData = await AsyncStorage.getItem('storedData');
+      const parsed = JSON.parse(storedData);
+
+      // Change dob and sex based on the info entered in EditInfo.js screen
+      const data = {
+        dob: stored_dob,
+        blood: parsed,
+        sex: gender
+      };
+      email(to, {
+          subject: 'Sugar Health Data',
+          body: JSON.stringify(data)
+      }).catch(console.error)
     }
   }
 
@@ -313,7 +341,7 @@ const styles = StyleSheet.create ({
     textAlign: 'left'
   },
   touchablestyle: {
-    paddingVertical: 8,
+    paddingVertical: paddingSize,
   }
 
 });

@@ -18,6 +18,7 @@ import {
 } from 'react-native';
 
 import AppleHealthKit from 'rn-apple-healthkit';
+import DatePicker from 'react-native-datepicker';
 import { createStackNavigator } from 'react-navigation';
 
 import Screen from './Screen';
@@ -27,6 +28,16 @@ import Octicons from 'react-native-vector-icons/Octicons.js';
 
 const { width: WIDTH } = Dimensions.get('window')
 const key = '@MyApp:key';
+
+let iconWarpSize = 110;
+if (Platform.OS === 'android'){
+  iconWarpSize = 110;
+
+}
+
+else{
+  iconWarpSize = 140;
+}
 
 export default class EditInfo extends Component<{}> {
   static navigationOptions = {
@@ -38,8 +49,9 @@ export default class EditInfo extends Component<{}> {
   	super(props);
   	this.state={
       name: '',
-  		frequency: '1',
       nameValidate: false,
+      androidGender: 'Female',
+      androidBirthday: '2000-07-11'
 		}
   };
 
@@ -50,48 +62,11 @@ export default class EditInfo extends Component<{}> {
 
   persistData(){
     let name = this.state.name
-    let frequency = this.state.frequency
+    let dob = this.state.androidBirthday
+    let gender = this.state.androidGender
     AsyncStorage.setItem('name', name).done();
-    AsyncStorage.setItem('frequency', frequency).done();
-  }
-
-  check(){
-    AsyncStorage.getItem('name').then((name) => {
-        this.setState({name: name, persistedName: name})
-    })
-  }
-
-  componentWillMount(){
-    this.check();
-  }
-
-  collectHealthInfo = () => {
-    if (Platform.OS === 'android') {
-      // Add data fetch from GoogleFit here
-    }
-    else {
-      // needs error handling if user doesnt have health info in healthkit
-      // Collect BiologicalSex
-      AppleHealthKit.getBiologicalSex(null, (err: Object, results: Object) => {
-        if (err) {
-          // This doesnt work. should have a checker if user doesnt have data
-          // move this to another function to get the value after user allowed
-          return;
-        }
-        //console.log(results) //Collect biological sex data here
-      });
-
-      // Collect Birthday
-      AppleHealthKit.getDateOfBirth(null, (err: Object, results: Object) => {
-      //if (this._handleHealthkitError(err, 'getDateOfBirth')) {
-      if (err) {
-          return;
-      }
-      //console.log(results) //Collect age here
-      });
-    }
-    // Navigate back to home screen.
-    this.props.navigation.navigate('HomeScreen')
+    AsyncStorage.setItem('dob', dob).done();
+    AsyncStorage.setItem('gender', gender).done();
   }
 
   validateName(text) {
@@ -112,63 +87,127 @@ export default class EditInfo extends Component<{}> {
   }
 
   render() {
+    if (Platform.OS === 'ios') {
     return (
-      <SafeAreaView style={styles.safeArea}>
-        <View style= {styles.lineargcontainer}>
-          <StatusBar barStyle= 'dark-content' hidden = {false}/>
-            <EditInfoHeader/>
-        </View>
-        <View style= {styles.inputcontainer}>
-          <TextInput
-            style= {styles.textinput}
-            onChangeText= {(name) => this.validateName(name)}
-            placeholder= {'Name'}
-            placeholderTextcolor= {'rbga(255,255,255,0.7)'}/>
-        </View>
-        <View style= {styles.container}>
-          <TouchableOpacity disabled= {!this.state.nameValidate ? true : false} onPress={this.storeDataAndNextScreen.bind(this)}>
-            <View style={styles.button}>
-              <Text style= {styles.buttontext}>DONE</Text>
-            </View>
-          </TouchableOpacity>
-        </View>
-      </SafeAreaView>
+        <SafeAreaView style={styles.safeArea}>
+            <StatusBar barStyle= 'dark-content' hidden = {false}/>
+            <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+              <View style= {styles.inputcontainer}>
+                <View style= {styles.header}>
+                  <Text style= {styles.label}>About you</Text>
+                  <View style= {styles.iconWarp}>
+                    <View style= {styles.container}>
+                      <Octicons name='person' {...iconStyles} />
+                    </View>
+                  </View>
+                  <View style= {styles.textboxcontainer}>
+                    <TextInput
+                      style= {styles.textinput}
+                      onChangeText= {(name) => this.validateName(name)}
+                      placeholder= {'Name'}
+                      placeholderTextcolor= {'rbga(255,255,255,0.7)'}/>
+                      <TouchableOpacity style={styles.buttoncontainer} disabled= {!this.state.nameValidate ? true : false} onPress={this.storeDataAndNextScreen.bind(this)}>
+                        <View style={styles.button}>
+                          <Text style= {styles.buttontext}>DONE</Text>
+                        </View>
+                      </TouchableOpacity>
+                  </View>
+                </View>
+              </View>
+            </TouchableWithoutFeedback>
+        </SafeAreaView>
+        );
+      }
+      else {
+        return(
+        <SafeAreaView style={styles.safeArea}>
+            <StatusBar barStyle= 'dark-content' hidden = {false}/>
+            <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+              <View style= {styles.inputcontainer}>
+                <View style= {styles.header}>
+                  <Text style= {styles.label}>About you</Text>
+                  <View style= {styles.iconWarp}>
+                    <View style= {styles.container}>
+                      <Octicons name='person' {...iconStyles} />
+                    </View>
 
-    );
+                  </View>
+                  <View style= {styles.textboxcontainer}>
+                    <TextInput
+                      style= {styles.textinput}
+                      onChangeText= {(name) => this.validateName(name)}
+                      placeholder= {'Name'}
+                      placeholderTextcolor= {'rbga(255,255,255,0.7)'}/>
+                  </View>
+
+                    <View style={styles.pickercontainer}>
+                     <DatePicker
+                      // Change marginTop to change distance from the textbox
+                      style={{width: 200, marginTop: 50}}
+                      date={this.state.androidBirthday}
+                      mode="date"
+                      placeholder="select date"
+                      format="YYYY-MM-DD"
+                      minDate="1900-01-01"
+                      maxDate="2019-06-01"
+                      confirmBtnText="Confirm"
+                      cancelBtnText="Cancel"
+                      customStyles={{
+                        dateIcon: {
+                          position: 'absolute',
+                          left: 0,
+                          top: 4,
+                          marginLeft: 0
+                        },
+                        dateInput: {
+                          marginLeft: 36
+                        }
+                        // ... You can check the source to find the other keys.
+                      }}
+                      onDateChange={(date) => {this.setState({date: date})}}
+                    />
+                      <Picker
+                        // Change pickercontainer or picker to change position in Android
+                        style = {styles.picker}
+                        selectedValue={this.state.androidGender}
+                        onValueChange={(itemValue, itemIndex) => this.setState({androidGender: itemValue})}>
+                        <Picker.Item label="Female" value="Female"/>
+                        <Picker.Item label="Male" value="Male"/>
+                      </Picker>
+                    </View>
+                    <TouchableOpacity style={styles.buttoncontainer} disabled= {!this.state.nameValidate ? true : false} onPress={this.storeDataAndNextScreen.bind(this)}>
+                      <View style={styles.button}>
+                        <Text style= {styles.buttontext}>DONE</Text>
+                      </View>
+                    </TouchableOpacity>
+
+                </View>
+                </View>
+            </TouchableWithoutFeedback>
+        </SafeAreaView>
+
+      );
+    }
   }
 }
 
 const iconStyles = {
-  //position: 'absolute',
-  top: 10,
-  left: 37
+  size: 80,
+  color: '#21B6A8',
+  flex: 1,
+  borderRadius: 100,
+  borderColor: '#000000',
+  borderWidth: 4
 };
 
 const styles = StyleSheet.create({
-  lineargcontainer: {
-    flex: 2,
-    alignSelf: 'stretch',
-    alignItems: 'center',
-    shadowColor: '#d3d3d3',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.8,
-    shadowRadius: 2,
-    elevation: 1
-  },
   inputcontainer: {
-    alignItems: 'center',
-    paddingTop: 20,
-  },
-  container: {
+    flexDirection: 'column',
     flex: 1,
-    alignItems: 'center',
-    paddingTop: 100
   },
   safeArea: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#F5FCFF'
+    backgroundColor: '#F5FCFF',
   },
   textinputerror: {
     width: WIDTH - 55,
@@ -199,13 +238,18 @@ const styles = StyleSheet.create({
   picker: {
     height: Platform.OS === 'ios' ? 40 : 30,
     width: 150,
-    position: 'absolute',
     bottom: Platform.OS === 'ios' ? 100 : 70,
-    paddingTop: 10
+    marginBottom: 15
+
   },
   pickercontainer: {
     alignItems: 'center',
-    paddingTop: 70
+    paddingTop: 0,
+    marginTop: 5,
+    alignItems: 'center',
+    flexDirection: 'column',
+    flex:1,
+
   },
   label: {
     color: '#859593',
@@ -216,23 +260,59 @@ const styles = StyleSheet.create({
     paddingRight: 20
   },
   button: {
+
     borderRadius: 50, // Rounded border
     borderWidth: 2, // 2 point border widht
-    //borderColor: "#128a08", // White colored border
-    //borderColor: '#02aab0',
     borderColor: '#21B6A8',
     paddingHorizontal: 50, // Horizontal padding
     paddingVertical: 10 // Vertical padding
-
   },
-  // Button text
   buttontext: {
-    //color: "#128a08",
-    //color: '#02aab0',
     color: '#21B6A8',
     fontWeight: "bold",
     fontFamily: "Avenir"
+  },
+  container: {
+    flex:1,
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
+  header: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexDirection: 'column'
+  },
+  iconWarp: {
+    width: iconWarpSize,
+    height: iconWarpSize,
+    borderRadius: 60,
+    borderColor: '#21B6A8',
+    borderWidth: 10,
+    shadowColor: '#d3d3d3',
+    shadowOffset: { width: 0, height: 5 },
+    shadowOpacity: 0.8,
+    shadowRadius: 2,
+    elevation: 1
+  },
+  label: {
+    marginTop: 20,
+    color: '#21B6A8',
+    fontFamily: 'Avenir',
+    fontSize: 30,
+    fontWeight: 'bold',
+    marginVertical: 15
+  },
+  textboxcontainer: {
+    marginTop: 50,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  buttoncontainer: {
+    marginTop: 60
   }
+
 });
 
 AppRegistry.registerComponent('EditInfo', () => EditInfo);

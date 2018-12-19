@@ -124,7 +124,7 @@ export default class ReadingScreen extends Component {
     var index;
     if (value >= 150) {
       index = this.getRandomInt(aboveFeedbackArray.length);
-      console.log(index)
+      // console.log(index)
       var temp = aboveFeedbackArray[index];
       this.setState({
         feedback: temp,
@@ -179,7 +179,7 @@ export default class ReadingScreen extends Component {
               Unit: 'mg/dL'
             }
             RNHealthKit.saveHealthData(healthData, (error, events) => {
-              console.log(events);
+               console.log(events);
             })
           }
         }
@@ -191,7 +191,7 @@ export default class ReadingScreen extends Component {
         .then((storedData) => {
           const dataContainer = storedData ? JSON.parse(storedData) : [];
           dataContainer.push(newData);
-          console.log(dataContainer);
+          // console.log(dataContainer);
           AsyncStorage.setItem('storedData', JSON.stringify(dataContainer));
         });
         this.clearText('GlucoseTextInput')
@@ -212,6 +212,7 @@ export default class ReadingScreen extends Component {
     var first = value[0];
     var second = value[1];
     var third = value[2];
+
     var month1 = first.concat(second.concat(third));
 
     var first2 = value2[0];
@@ -243,7 +244,7 @@ export default class ReadingScreen extends Component {
       var tens = value[4];
       var ones = value[5];
       day = parseInt(tens.concat(ones));
-      console.log(day)
+      // console.log(day)
     }
     else if (value.length == 5) {
       //get the last 1 digit
@@ -290,6 +291,7 @@ export default class ReadingScreen extends Component {
         compareDay = this.getDay(parsed[arrLen].formatDate);
         previousDay = this.getDay(parsed[arrLen-counter].formatDate);
         previousDayLevel = parsed[arrLen-counter].level;
+        console.log("LEVEL: ", previousDayLevel)
 
         if (parsed[arrLen].formatDate == parsed[arrLen-1].formatDate ) {
           if (parsed[arrLen].level == 'Normal' && parsed[arrLen-1].level == 'Normal') {
@@ -302,8 +304,9 @@ export default class ReadingScreen extends Component {
         }
         else {
           // Check if month is the same or is the prev month
-          if ((parsed[arrLen].formatDate[0] == parsed[arrLen-counter].formatDate[0] && parsed[arrLen].formatDate[1] == parsed[arrLen-counter].formatDate[1] && parsed[arrLen].formatDate[2] == parsed[arrLen-counter].formatDate[2]) || this.checkMonth(parsed[arrLen],parsed[arrLen-counter])) { // add or
+          if ((parsed[arrLen].formatDate[0] == parsed[arrLen-counter].formatDate[0] && parsed[arrLen].formatDate[1] == parsed[arrLen-counter].formatDate[1] && parsed[arrLen].formatDate[2] == parsed[arrLen-counter].formatDate[2]) || this.checkMonth(parsed[arrLen].formatDate,parsed[arrLen-counter].formatDate)) { // add or
             // If previous month is indeed the previous month of the new month, check if the current day is 1, if yes, increment
+
             if (this.checkMonth(parsed[arrLen].formatDate, parsed[arrLen-counter].formatDate)) {
               if (compareDay == 1 && previousDayLevel == 'Normal') {
                 tempStreakCount += 1;
@@ -501,7 +504,7 @@ export default class ReadingScreen extends Component {
               <Text style= {styles.text}>{this.state.feedback}</Text>
             </View>
             <View style= {styles.infocontainer}>
-              <Text style= {styles.header}>Enter blood glucossdae:</Text>
+              <Text style= {styles.header}>Enter blood glucose:</Text>
               <View style= {styles.iconborder}>
                  <FontAwesome5 name= 'syringe' {...iconStyles}/>
               </View>

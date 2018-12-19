@@ -16,19 +16,17 @@ import AppleHealthKit from 'rn-apple-healthkit';
 import { RNHealthKit } from 'react-native-healthkit';
 import Icon from 'react-native-vector-icons/Ionicons.js';
 import Octicons from 'react-native-vector-icons/Octicons.js';
-
-
 let iconCircleSize = 0;
 let iconStyleSize = 0;
 
 if (Platform.OS === 'android'){
-	iconCircleSize = 110;
-	iconStyleSize = 60;
+  iconCircleSize = 110;
+  iconStyleSize = 60;
 
 }
 else{
-	iconCircleSize = 140;
-	iconStyleSize = 80;
+  iconCircleSize = 140;
+  iconStyleSize = 80;
 }
 
 export default class Profile extends Component {

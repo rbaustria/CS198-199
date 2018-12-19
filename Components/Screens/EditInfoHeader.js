@@ -43,26 +43,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center'
 
   },
-  headercontainer: {
-    flex: 1,
-    alignSelf: 'stretch',
-    //borderRadius: 5,
-    alignItems: 'center',
-    color: '#e3e1e1'
-  },
-  linearGradient: {
-    flex: 1,
-    alignSelf: 'stretch',
-    //borderRadius: 5,
-    alignItems: 'center',
-    paddingTop: 30,
-    paddingBottom: 50,
-  },
   header: {
     flex: 1,
     alignItems: 'center',
-    justifyContent: 'center',
-    padding: 20,
+    justifyContent: 'center'
   },
   iconWarp: {
     width: 140,
