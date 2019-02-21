@@ -46,7 +46,7 @@ export default class GraphScreen extends Component {
       const graphData = []
 
       if (parsed != null) {
-        console.log('Parsed Data: ', parsed);
+        // console.log('Parsed Data: ', parsed);
         if (parsed.length < 6) {
           this.setState({
             parsedData: parsed,
@@ -87,13 +87,13 @@ export default class GraphScreen extends Component {
         <ScrollView style= {styles.scrollContainer}>
           <View style= {styles.background}>
               <VictoryChart
-              domainPadding={{ x: 15 }}
+              domainPadding={{ x: 20 }}
               height= {HEIGHT - 300}
               width= {WIDTH}
               >
                 <VictoryBar
                   style={{
-                    data: { fill: d => d.reading >= 150 ? '#ff6961' : ( d.reading >= 70 ? '#ffb347' : '#aec6cf' )},
+                    data: { fill: d => d.reading >= 150 ? '#ffb347' : ( d.reading >= 70 ? '#6699cc' : '#ff443a' )},
                   }}
                   animate={{ duration: 1000 }}
                   data= {this.state.parsedData}
@@ -133,19 +133,19 @@ export default class GraphScreen extends Component {
 
 const redSquare = {
   size: 30,
-  color: '#ff6961',
+  color: '#ffb347',
   flex: 1,
 };
 
 const orangeSquare = {
   size: 30,
-  color: '#ffb347',
+  color: '#6699cc',
   flex: 1,
 };
 
 const blueSquare = {
   size: 30,
-  color: '#aec6cf',
+  color: '#ff443a',
   flex: 1,
 };
 

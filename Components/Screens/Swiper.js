@@ -17,7 +17,7 @@ import {
 
 import { createStackNavigator } from 'react-navigation';
 import AppleHealthKit from 'rn-apple-healthkit';
-import { RNHealthKit } from 'react-native-healthkit';
+import { RNHealthKit } from 'rn-healthkit';
 import EditInfo from './EditInfo';
 
 
@@ -75,6 +75,10 @@ export default class OnboardingScreens extends Component {
     else {
       // For Healthkit
       // According to Apple's privacy policy, we can't ask to allow permissions again, user must manually allow the perms.
+
+      RNHealthKit.isSupportHealthKit((error, events) => {
+        console.log(events);
+      })
 
       let permissions = {
           read: ['BloodGlucose', 'BiologicalSex', 'DateOfBirth'],

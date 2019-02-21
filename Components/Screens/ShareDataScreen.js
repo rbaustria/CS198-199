@@ -14,10 +14,11 @@ import {
 
 import email from 'react-native-email';
 import AppleHealthKit from 'rn-apple-healthkit';
-import { RNHealthKit } from 'react-native-healthkit';
+import { RNHealthKit } from 'rn-healthkit';
 import { Header } from 'react-native-elements';
 import { createStackNavigator } from 'react-navigation';
 import Octicons from 'react-native-vector-icons/Octicons.js';
+import * as Animatable from 'react-native-animatable';
 
 export default class ShareDataScreen extends Component {
   constructor() {
@@ -82,16 +83,22 @@ export default class ShareDataScreen extends Component {
                 data.sex = sex;
 
                 email(to, {
-                    subject: 'Sugar Health Data',
+                    subject: 'SugarTraces Health Data',
                     body: JSON.stringify(data)
                 }).catch(console.error)
 
+                // fetch(url, {
+                //   method: 'POST',
+                //   body: JSON.stringify(data),
+                //   headers: {
+                //     'Content-Type': 'application/json'
+                //   }
+                // }).then((resp) => console.log(resp), (err) => console.error(err));
+                //console.log(data);
               });
             });
           });
         });
-
-        window.alert('Your data has been sent! Thank you for participating in the study!')
       }
       catch(error) {
         console.log(error)
@@ -112,7 +119,7 @@ export default class ShareDataScreen extends Component {
         sex: gender
       };
       email(to, {
-          subject: 'Sugar Health Data',
+          subject: 'SugarTraces Health Data',
           body: JSON.stringify(data)
       }).catch(console.error)
     }
@@ -187,9 +194,9 @@ export default class ShareDataScreen extends Component {
 
             <View style= {{flex: 1, paddingTop: 50, textAlign: 'center'}}>
               <TouchableOpacity style= {styles.touchablestyle} onPress={() => {this.exportData()}}>
-                <View style={styles.button}>
+                <Animatable.View animation="pulse" easing="ease-out" iterationCount="infinite" style={styles.button}>
                   <Text style= {styles.buttontext}>Send Data</Text>
-                </View>
+                </Animatable.View>
               </TouchableOpacity>
               <TouchableOpacity style= {styles.touchablestyle} onPress= {() => {this.showAbout()}}>
                 <Text style= {styles.text}>About</Text>

@@ -13,9 +13,10 @@ import {
 
 import { Header } from 'react-native-elements';
 import AppleHealthKit from 'rn-apple-healthkit';
-import { RNHealthKit } from 'react-native-healthkit';
+import { RNHealthKit } from 'rn-healthkit';
 import Icon from 'react-native-vector-icons/Ionicons.js';
 import Octicons from 'react-native-vector-icons/Octicons.js';
+import * as Animatable from 'react-native-animatable';
 
 export default class Profile extends Component {
   constructor(props) {
@@ -26,7 +27,9 @@ export default class Profile extends Component {
       count: '',
       streak: '',
       day: 'day',
-      days: 'days'
+      days: 'days',
+      achievementCount: '',
+      lastRecorded: ''
     }
   };
 
@@ -35,18 +38,26 @@ export default class Profile extends Component {
       const tempName = await AsyncStorage.getItem('name');
       const tempcount = await AsyncStorage.getItem('recordedReading');
       const tempStreakCount = await AsyncStorage.getItem('streak');
-      // AsyncStorage.getItem('name')
-      // .then((name) => {
-      //     this.setState({name: name, persistedName: name})
-      // })
-      // AsyncStorage.getItem('recordedReading')
-      // .then((count) => {
-      //     this.setState({count: count, recordedReading: count})
-      // })
+
+
+      // To get the number of achievements
+      var temp = await AsyncStorage.getItem('achievements');
+      var completedAchievements = JSON.parse(temp);
+      const tempAchievementCount = completedAchievements.length
+
+      // To get the last recorded reading
+      let parsedData = this.state.parsedData;
+      const storedData = await AsyncStorage.getItem('storedData');
+      const parsed = JSON.parse(storedData);
+
+      const tempLastRecorded = (parsed[parsed.length-1].formatDate).replace(/\n/g, ' ') + ', ' + (parsed[parsed.length-1].level)
+
       this.setState({
         name: tempName,
         count: tempcount,
-        streak: tempStreakCount
+        streak: tempStreakCount,
+        achievementCount: tempAchievementCount,
+        lastRecorded: tempLastRecorded
       })
     }
     catch (error) {
@@ -96,9 +107,23 @@ export default class Profile extends Component {
             </View>
 
             <View style= {styles.textcontainer}>
-              <Octicons name='star' {...infoIconStyle} />
-              <Text style= {styles.text}> Longest streak: {this.state.streak} {this.isPlural(this.state.streak)}</Text>
+              <Icon name='md-calendar' {...infoIconStyle} />
+              <Text style= {styles.text}> Last recorded: {this.state.lastRecorded} </Text>
             </View>
+
+            <View style= {styles.textcontainer}>
+              <Icon name='ios-ribbon' {...infoIconStyle} />
+              <Text style= {styles.text}> Number of achievements unlocked: {this.state.achievementCount} </Text>
+            </View>
+
+            <View style= {styles.textcontainer}>
+              <Animatable.View animation="tada" easing="ease-out" iterationCount="infinite">
+                <Octicons name='star' {...infoIconStyle} />
+              </Animatable.View>
+              <Text style= {styles.text}> Current streak: {this.state.streak} {this.isPlural(this.state.streak)}</Text>
+            </View>
+
+
           </View>
         </View>
       </SafeAreaView>
@@ -183,7 +208,7 @@ const styles = StyleSheet.create ({
   text: {
     color: '#859593',
     fontFamily: 'Avenir',
-    fontSize: 18,
+    fontSize: 15,
     textAlign: 'left'
   }
 
