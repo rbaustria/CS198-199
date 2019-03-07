@@ -14,7 +14,8 @@ import {
   Keyboard,
   TouchableOpacity,
   TouchableWithoutFeedback,
-  AsyncStorage
+  AsyncStorage,
+  KeyboardAvoidingView
 } from 'react-native';
 
 import AppleHealthKit from 'rn-apple-healthkit';
@@ -79,6 +80,7 @@ export default class EditInfo extends Component<{}> {
   render() {
     if (Platform.OS === 'ios') {
     return (
+        <KeyboardAvoidingView style={styles.safeArea} behavior="padding">
         <SafeAreaView style={styles.safeArea}>
             <StatusBar barStyle= 'dark-content' hidden = {false}/>
             <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
@@ -106,10 +108,12 @@ export default class EditInfo extends Component<{}> {
               </View>
             </TouchableWithoutFeedback>
         </SafeAreaView>
+        </KeyboardAvoidingView>
         );
       }
       else {
         return(
+        <KeyboardAvoidingView style={styles.safeArea} behavior="padding">
         <SafeAreaView style={styles.safeArea}>
             <StatusBar barStyle= 'dark-content' hidden = {false}/>
             <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
@@ -172,6 +176,7 @@ export default class EditInfo extends Component<{}> {
               </View>
             </TouchableWithoutFeedback>
         </SafeAreaView>
+        </KeyboardAvoidingView>
 
       );
     }
@@ -190,7 +195,8 @@ const iconStyles = {
 const styles = StyleSheet.create({
   inputcontainer: {
     flexDirection: 'column',
-    flex: 1
+    flex: 1,
+    justifyContent: 'flex-end'
   },
   safeArea: {
     flex: 1,

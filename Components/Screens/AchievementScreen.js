@@ -62,7 +62,11 @@ export default class AchievementScreen extends Component {
 
   checkAchievement = async () => {
     var temp = await AsyncStorage.getItem('achievements');
-    var completedAchievements = JSON.parse(temp);
+    var parsedAchievements = JSON.parse(temp);
+    var achDateArray = parsedAchievements.map(obj => obj.date);
+    var completedAchievements = parsedAchievements.map(obj => obj.number);
+
+
     const achievementDescription = [
         'Entered your first reading!',
         'Entered four (4) consecutive normal readings after an above normal reading.',
@@ -76,58 +80,85 @@ export default class AchievementScreen extends Component {
 
     // Set the achievement's corresponding icon and description message if unlocked.
     if (completedAchievements.includes('1')) {
+      let dateIndex = completedAchievements.indexOf('1')
+      // Remove \n to formatDate
+      let unlockDate = (achDateArray[dateIndex]).replace(/\n/g, ' ')
+      // Full description with date achieved.
+      let fullDesc = achievementDescription[0] + '\n' + "Date unlocked: " + unlockDate
+
       this.setState({
         icon1Name: 'vial',
-        achievementDesc1: achievementDescription[0],
+        achievementDesc1: fullDesc,
         achievement1Color: '#21B6A8'
       })
     }
     if (completedAchievements.includes('2')) {
+      let dateIndex = completedAchievements.indexOf('2')
+      let unlockDate = achDateArray[dateIndex].replace(/\n/g, ' ')
+      let fullDesc = achievementDescription[1] + '\n' + "Date unlocked: " + unlockDate
       this.setState({
         icon2Name: 'sort-amount-down',
-        achievementDesc2: achievementDescription[1],
+        achievementDesc2: fullDesc,
         achievement2Color: '#21B6A8'
       })
     }
     if (completedAchievements.includes('3')) {
+      let dateIndex = completedAchievements.indexOf('3')
+      let unlockDate = achDateArray[dateIndex].replace(/\n/g, ' ')
+      let fullDesc = achievementDescription[2] + '\n' + "Date unlocked: " + unlockDate
       this.setState({
         icon3Name: 'star-half-alt',
-        achievementDesc3: achievementDescription[2],
+        achievementDesc3: fullDesc,
         achievement3Color: '#21B6A8'
       })
     }
     if (completedAchievements.includes('4')) {
+      let dateIndex = completedAchievements.indexOf('4')
+      let unlockDate = achDateArray[dateIndex].replace(/\n/g, ' ')
+      let fullDesc = achievementDescription[3] + '\n' + "Date unlocked: " + unlockDate
       this.setState({
         icon4Name: 'sort-amount-up',
-        achievementDesc4: achievementDescription[3],
+        achievementDesc4: fullDesc,
         achievement4Color: '#21B6A8'
       })
     }
     if (completedAchievements.includes('5')) {
+      let dateIndex = completedAchievements.indexOf('5')
+      let unlockDate = achDateArray[dateIndex].replace(/\n/g, ' ')
+      let fullDesc = achievementDescription[4] + '\n' + "Date unlocked: " + unlockDate
       this.setState({
         icon5Name: 'american-sign-language-interpreting',
-        achievementDesc5: achievementDescription[4],
+        achievementDesc5: fullDesc,
         achievement5Color: '#21B6A8'
       })
     }
     if (completedAchievements.includes('6')) {
+      let dateIndex = completedAchievements.indexOf('6')
+      let unlockDate = achDateArray[dateIndex].replace(/\n/g, ' ')
+      let fullDesc = achievementDescription[5] + '\n' + "Date unlocked: " + unlockDate
       this.setState({
         icon6Name: 'rocket',
-        achievementDesc6: achievementDescription[5],
+        achievementDesc6: fullDesc,
         achievement6Color: '#21B6A8'
       })
     }
     if (completedAchievements.includes('7')) {
+      let dateIndex = completedAchievements.indexOf('7')
+      let unlockDate = achDateArray[dateIndex].replace(/\n/g, ' ')
+      let fullDesc = achievementDescription[6] + '\n' + "Date unlocked: " + unlockDate
       this.setState({
         icon7Name: 'user-graduate',
-        achievementDesc7: achievementDescription[6],
+        achievementDesc7: fullDesc,
         achievement7Color: '#21B6A8'
       })
     }
     if (completedAchievements.includes('8')) {
+      let dateIndex = completedAchievements.indexOf('8')
+      let unlockDate = achDateArray[dateIndex].replace(/\n/g, ' ')
+      let fullDesc = achievementDescription[7] + '\n' + "Date unlocked: " + unlockDate
       this.setState({
         icon8Name: 'award',
-        achievementDesc8: achievementDescription[7],
+        achievementDesc8: fullDesc,
         achievement8Color: '#21B6A8'
       })
     }

@@ -31,20 +31,50 @@ export default class ShareDataScreen extends Component {
       aboutMsg: '',
       ackMsg: '',
       termsMsg: '',
+      formatDate: ''
     }
+  }
+
+  getInputDate() {
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    var day = new Date().getDate();
+    var month = new Date().getMonth() + 1;
+    var year = new Date().getFullYear();
+    var hour = new Date().getHours();
+    var minutes = new Date().getMinutes();
+    var currFormatDate = months[month - 1] + ' ' + day + ', ' + year; // Date to be displayed
+
+    // For display formatting. Ex. Add '0' for 17:02 instead of 17:2
+    if (minutes <= 9) {
+        currFormatDate = currFormatDate + '\n' + hour + ':' + '0' + minutes; // Date to be displayed
+    }
+    else {
+        currFormatDate = currFormatDate + '\n' + hour + ':' + minutes; // Date to be displayed
+    }
+
+    return currFormatDate;
   }
 
   exportData = async () => {
 
     var temp = await AsyncStorage.getItem('achievements');
-    var parsed = JSON.parse(temp);
+    var parsedAchievements = JSON.parse(temp);
+    var achDateArray = parsedAchievements.map(obj => obj.date);
+    var parsed = parsedAchievements.map(obj => obj.number);
 
     // Achievement 7 unclocked. View Acknowledgement.
     if (!parsed.includes('7')) {
-      const tempArr = parsed;
-      tempArr.push('7');
+      const tempArr = parsedAchievements;
+      // Get unlock date (current date)
+      this.getInputDate()
+      let tempDate = this.getInputDate();
+      let achievementData = {
+        date: tempDate,
+        number: '7'
+      }
+
+      tempArr.push(achievementData);
       AsyncStorage.setItem('achievements', JSON.stringify(tempArr));
-      window.alert('You got an achievement for participating in the study!')
     }
 
     if (Platform.OS === 'ios') {
@@ -139,12 +169,24 @@ export default class ShareDataScreen extends Component {
     })
 
     var temp = await AsyncStorage.getItem('achievements');
-    var parsed = JSON.parse(temp);
+    var parsedAchievements = JSON.parse(temp);
+    var achDateArray = parsedAchievements.map(obj => obj.date);
+    var parsed = parsedAchievements.map(obj => obj.number);
+
+    let tempDate = this.getInputDate();
 
     // Achievement 8 unclocked. View Acknowledgement.
     if (!parsed.includes('8')) {
-      const tempArr = parsed;
-      tempArr.push('8');
+      const tempArr = parsedAchievements;
+      // Get unlock date (current date)
+
+      let tempDate = this.getInputDate();
+      let achievementData = {
+        date: tempDate,
+        number: '8'
+      }
+
+      tempArr.push(achievementData);
       AsyncStorage.setItem('achievements', JSON.stringify(tempArr));
     }
   }
@@ -152,7 +194,7 @@ export default class ShareDataScreen extends Component {
   showTerms() {
     this.setState({
       termsIsVisible: true,
-      termsMsg: 'This application only collects the following health data: Date of birth, Sex, and Blood Glucose readings. \n The said data will be analyzed and kept among the researchers.'
+      termsMsg: 'This application does not collect and upload data to cloud. The user will be the only one capable of exporting data through email.'
     })
   }
 

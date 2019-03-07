@@ -14,7 +14,7 @@ import {
 
 import { Header } from 'react-native-elements';
 import Octicons from 'react-native-vector-icons/Octicons.js';
-import { VictoryBar, VictoryChart, VictoryAxis } from 'victory-native';
+import { VictoryBar, VictoryChart, VictoryAxis, VictoryContainer } from 'victory-native';
 
 const { width: WIDTH } = Dimensions.get('window')
 const { height: HEIGHT } = Dimensions.get('window')
@@ -75,7 +75,7 @@ export default class GraphScreen extends Component {
 
   render () {
     // Formatted Dates
-    const dataX = this.state.parsedData.map(obj => obj.formatDate);
+    const dataX = this.state.parsedData.map(obj => obj.graphTime);
     const dataValue = this.state.parsedData.map(obj => obj.date);
 
     return (
@@ -87,6 +87,7 @@ export default class GraphScreen extends Component {
         <ScrollView style= {styles.scrollContainer}>
           <View style= {styles.background}>
               <VictoryChart
+              containerComponent={<VictoryContainer disableContainerEvents />}
               domainPadding={{ x: 20 }}
               height= {HEIGHT - 300}
               width= {WIDTH}
@@ -99,18 +100,20 @@ export default class GraphScreen extends Component {
                   data= {this.state.parsedData}
                   x= 'date'
                   y= {(d) => d.reading}
+                  labels={(d) => d.reading }
                 />
                 <VictoryAxis
                   fixLabelOverlap = {true}
                   style={{
-                    tickLabels: {fontSize: 15, padding: 10}
+                    tickLabels: {fontSize: 13, padding: 10}
                   }}
                   tickValues= {dataValue}
                   tickFormat= {dataX}
                 />
                 <VictoryAxis dependentAxis/>
             </VictoryChart>
-            <View style= {{flexDirection: 'column', justifyContent: 'center'}}>
+
+            <View style= {{flexDirection: 'row', justifyContent: 'center', paddingTop: 20}}>
               <View style= {styles.legendContainer}>
                 <Octicons name='primitive-square' {...redSquare} />
                 <Text style= {styles.text}> Above </Text>
@@ -162,7 +165,7 @@ const styles = StyleSheet.create ({
     flex: 1,
     alignSelf: 'stretch',
     justifyContent: 'center',
-    backgroundColor: '#f2f2f2',
+    backgroundColor: '#f2f2f2'
   },
   infoContainer: {
     flex: 1,
