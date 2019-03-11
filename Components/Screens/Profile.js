@@ -13,21 +13,11 @@ import {
 
 import { Header } from 'react-native-elements';
 import AppleHealthKit from 'rn-apple-healthkit';
-import { RNHealthKit } from 'react-native-healthkit';
+import { RNHealthKit } from 'rn-healthkit';
 import Icon from 'react-native-vector-icons/Ionicons.js';
 import Octicons from 'react-native-vector-icons/Octicons.js';
-let iconCircleSize = 0;
-let iconStyleSize = 0;
-
-if (Platform.OS === 'android'){
-  iconCircleSize = 110;
-  iconStyleSize = 60;
-
-}
-else{
-  iconCircleSize = 140;
-  iconStyleSize = 80;
-}
+import * as Animatable from 'react-native-animatable';
+import AwesomeAlert from 'react-native-awesome-alerts';
 
 export default class Profile extends Component {
   constructor(props) {
@@ -38,7 +28,10 @@ export default class Profile extends Component {
       count: '',
       streak: '',
       day: 'day',
-      days: 'days'
+      days: 'days',
+      achievementCount: '',
+      lastRecorded: 'No readings recorded',
+      streakTooltip: 'Streak is maintained by entering a normal blood glucose reading. Entering an above/below normal blood glucose reading will automatically reset your streak.',
     }
   };
 
@@ -47,18 +40,29 @@ export default class Profile extends Component {
       const tempName = await AsyncStorage.getItem('name');
       const tempcount = await AsyncStorage.getItem('recordedReading');
       const tempStreakCount = await AsyncStorage.getItem('streak');
-      // AsyncStorage.getItem('name')
-      // .then((name) => {
-      //     this.setState({name: name, persistedName: name})
-      // })
-      // AsyncStorage.getItem('recordedReading')
-      // .then((count) => {
-      //     this.setState({count: count, recordedReading: count})
-      // })
+
+
+      // To get the number of achievements
+      var temp = await AsyncStorage.getItem('achievements');
+      var completedAchievements = JSON.parse(temp);
+      const tempAchievementCount = completedAchievements.length
+
+      // To get the last recorded reading
+      let parsedData = this.state.parsedData;
+      const storedData = await AsyncStorage.getItem('storedData');
+      const parsed = JSON.parse(storedData);
+      if(parsed != null){
+        const tempLastRecorded = (parsed[parsed.length-1].formatDate).replace(/\n/g, ' ') + ', ' + (parsed[parsed.length-1].level)
+        this.setState({
+          lastRecorded: tempLastRecorded,
+        })
+      }
+
       this.setState({
         name: tempName,
         count: tempcount,
-        streak: tempStreakCount
+        streak: tempStreakCount,
+        achievementCount: tempAchievementCount,
       })
     }
     catch (error) {
@@ -72,6 +76,18 @@ export default class Profile extends Component {
     }
     return 'days';
   }
+
+  showAlert() {
+    this.setState({
+      showAlert: true
+    })
+  }
+
+  hideAlert = () => {
+    this.setState({
+      showAlert: false
+    });
+  };
 
   componentDidMount(){
     this.getStoredName();
@@ -108,11 +124,38 @@ export default class Profile extends Component {
             </View>
 
             <View style= {styles.textcontainer}>
-              <Octicons name='star' {...infoIconStyle} />
-              <Text style= {styles.text}> Longest streak: {this.state.streak} {this.isPlural(this.state.streak)}</Text>
+              <Icon name='md-calendar' {...infoIconStyle} />
+              <Text style= {styles.text}> Last recorded: {this.state.lastRecorded} </Text>
             </View>
+
+            <View style= {styles.textcontainer}>
+              <Icon name='ios-ribbon' {...infoIconStyle} />
+              <Text style= {styles.text}> Number of achievements unlocked: {this.state.achievementCount} </Text>
+            </View>
+
+            <View style= {styles.textcontainer}>
+              <Animatable.View animation="tada" easing="ease-out" iterationCount="infinite">
+                <Octicons name='star' {...infoIconStyle} onPress={() => this.showAlert()}/>
+              </Animatable.View>
+              <Text style= {styles.text}> Current streak: {this.state.streak} {this.isPlural(this.state.streak)}</Text>
+            </View>
+
+
           </View>
         </View>
+        <AwesomeAlert
+          show={this.state.showAlert}
+          showProgress={false}
+          title="Streak"
+          message= {this.state.streakTooltip}
+          closeOnTouchOutside={true}
+          closeOnHardwareBackPress={false}
+          showCancelButton={true}
+          cancelText="Close"
+          onCancelPressed={() => {
+            this.hideAlert();
+          }}
+        />
       </SafeAreaView>
 
     );
@@ -120,7 +163,7 @@ export default class Profile extends Component {
 }
 
 const iconStyles = {
-  size: iconStyleSize,
+  size: 80,
   color: '#21B6A8',
   flex: 1,
   borderRadius: 100,
@@ -168,8 +211,8 @@ const styles = StyleSheet.create ({
     alignContent: 'flex-start',
   },
   iconCircle: {
-    width: iconCircleSize,
-    height: iconCircleSize,
+    width: 140,
+    height: 140,
     borderRadius: 60,
     borderColor: '#21B6A8',
     borderWidth: 10,
@@ -195,7 +238,7 @@ const styles = StyleSheet.create ({
   text: {
     color: '#859593',
     fontFamily: 'Avenir',
-    fontSize: 18,
+    fontSize: 15,
     textAlign: 'left'
   }
 

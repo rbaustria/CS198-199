@@ -14,7 +14,8 @@ import { Header } from 'react-native-elements';
 import Icon from 'react-native-vector-icons/Ionicons.js';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5.js';
 import Entypo from 'react-native-vector-icons/Entypo.js';
-import LinearGradient from 'react-native-linear-gradient';
+import * as Animatable from 'react-native-animatable';
+import AwesomeAlert from 'react-native-awesome-alerts';
 
 /* achievements:
     1 - enter your first normal reading                      /
@@ -39,14 +40,23 @@ export default class AchievementScreen extends Component {
       icon6Name: 'lock',
       icon7Name: 'lock',
       icon8Name: 'lock',
-      achievementDesc1: '???',
-      achievementDesc2: '???',
-      achievementDesc3: '???',
-      achievementDesc4: '???',
-      achievementDesc5: '???',
-      achievementDesc6: '???',
-      achievementDesc7: '???',
-      achievementDesc8: '???'
+      achievementDesc1: 'This achievement is locked. Continue using SugarTraces to unlock it!',
+      achievementDesc2: 'This achievement is locked. Continue using SugarTraces to unlock it!',
+      achievementDesc3: 'This achievement is locked. Continue using SugarTraces to unlock it!',
+      achievementDesc4: 'This achievement is locked. Continue using SugarTraces to unlock it!',
+      achievementDesc5: 'This achievement is locked. Continue using SugarTraces to unlock it!',
+      achievementDesc6: 'This achievement is locked. Continue using SugarTraces to unlock it!',
+      achievementDesc7: 'This achievement is locked. Continue using SugarTraces to unlock it!',
+      achievementDesc8: 'This achievement is locked. Continue using SugarTraces to unlock it!',
+      achievement1Color: '#389e94',
+      achievement2Color: '#389e94',
+      achievement3Color: '#389e94',
+      achievement4Color: '#389e94',
+      achievement5Color: '#389e94',
+      achievement6Color: '#389e94',
+      achievement7Color: '#389e94',
+      achievement8Color: '#389e94',
+      showAlert: false
     }
   };
 
@@ -54,13 +64,13 @@ export default class AchievementScreen extends Component {
     var temp = await AsyncStorage.getItem('achievements');
     var completedAchievements = JSON.parse(temp);
     const achievementDescription = [
-        'Enter your first reading!',
-        'Enter four (4) consecutive normal readings after being above normal.',
-        'Enter five (5) consecutive normal readings.',
-        'Enter four (4) consecutive normal readings after being below normal.',
-        'Enter ten (10) consecutive normal readings.',
-        'Have a normal reading streak for three (3) days.',
-        'Send data to the researchers.',
+        'Entered your first reading!',
+        'Entered four (4) consecutive normal readings after an above normal reading.',
+        'Entered five (5) consecutive normal readings.',
+        'Entered four (4) consecutive normal readings after a below normal reading.',
+        'Entered ten (10) consecutive normal readings.',
+        'Had a normal blood glucose streak for three (3) days!',
+        'Shared your data!',
         'Read the Acknowledgement page.',
     ];
 
@@ -68,52 +78,73 @@ export default class AchievementScreen extends Component {
     if (completedAchievements.includes('1')) {
       this.setState({
         icon1Name: 'vial',
-        achievementDesc1: achievementDescription[0]
+        achievementDesc1: achievementDescription[0],
+        achievement1Color: '#21B6A8'
       })
     }
     if (completedAchievements.includes('2')) {
       this.setState({
         icon2Name: 'sort-amount-down',
-        achievementDesc2: achievementDescription[1]
+        achievementDesc2: achievementDescription[1],
+        achievement2Color: '#21B6A8'
       })
     }
     if (completedAchievements.includes('3')) {
       this.setState({
         icon3Name: 'star-half-alt',
-        achievementDesc3: achievementDescription[2]
+        achievementDesc3: achievementDescription[2],
+        achievement3Color: '#21B6A8'
       })
     }
     if (completedAchievements.includes('4')) {
       this.setState({
         icon4Name: 'sort-amount-up',
-        achievementDesc4: achievementDescription[3]
+        achievementDesc4: achievementDescription[3],
+        achievement4Color: '#21B6A8'
       })
     }
     if (completedAchievements.includes('5')) {
       this.setState({
         icon5Name: 'american-sign-language-interpreting',
-        achievementDesc5: achievementDescription[4]
+        achievementDesc5: achievementDescription[4],
+        achievement5Color: '#21B6A8'
       })
     }
     if (completedAchievements.includes('6')) {
       this.setState({
         icon6Name: 'rocket',
-        achievementDesc6: achievementDescription[5]
+        achievementDesc6: achievementDescription[5],
+        achievement6Color: '#21B6A8'
       })
     }
     if (completedAchievements.includes('7')) {
       this.setState({
         icon7Name: 'user-graduate',
-        achievementDesc7: achievementDescription[6]
+        achievementDesc7: achievementDescription[6],
+        achievement7Color: '#21B6A8'
       })
     }
     if (completedAchievements.includes('8')) {
       this.setState({
         icon8Name: 'award',
-        achievementDesc8: achievementDescription[7]
+        achievementDesc8: achievementDescription[7],
+        achievement8Color: '#21B6A8'
       })
     }
   }
+
+  showAlert(message) {
+    this.setState({
+      alertMessage: message,
+      showAlert: true
+    })
+  }
+
+  hideAlert = () => {
+    this.setState({
+      showAlert: false
+    });
+  };
 
   // Rerenders the Achievement page to check if a new one is unlocked and to display it.
   componentDidMount(){
@@ -132,42 +163,59 @@ export default class AchievementScreen extends Component {
           <StatusBar barStyle='light-content' hidden= {false}/>
           <Header placement= 'left' centerComponent={{ text: 'Achievements', placement: 'center', style: { color: '#fff', fontFamily: 'Avenir', fontSize: 20, fontWeight: 'bold' } }} outerContainerStyles={{ backgroundColor: '#21B6A8', height: 60}}/>
         </View>
+        <ScrollView style= {styles.scrollContainer}>
         <View style= {styles.background}>
           <View style= {styles.infoContainer}>
             <Icon name= 'ios-trophy' color= '#21B6A8' size= {40} style = {{paddingLeft: 30}} />
-            <Text style= {styles.text}>Welcome to your achievement case!</Text>
+            <Text style= {styles.text}>These are your current achievements.</Text>
           </View>
           <View style= {styles.achievementContainer}>
             <View style= {styles.achievementIndivBox}>
-              <FontAwesome5 name= {this.state.icon1Name} size={50} color= '#21B6A8' onPress={() => window.alert(this.state.achievementDesc1)}/>
+              <FontAwesome5 name= {this.state.icon1Name} size={50} color= {this.state.achievement1Color} onPress={() => this.showAlert(this.state.achievementDesc1)}/>
             </View>
             <View style= {styles.achievementIndivBox}>
-              <FontAwesome5 name= {this.state.icon2Name} size={50} color= '#21B6A8' onPress={() => window.alert(this.state.achievementDesc2)}/>
+              <FontAwesome5 name= {this.state.icon2Name} size={50} color= {this.state.achievement2Color} onPress={() => this.showAlert(this.state.achievementDesc2)}/>
             </View>
             <View style= {styles.achievementIndivBox}>
-              <FontAwesome5 name= {this.state.icon3Name} size={50} color= '#21B6A8' onPress={() => window.alert(this.state.achievementDesc3)}/>
-            </View>
-          </View>
-          <View style= {styles.achievementContainer}>
-            <View style= {styles.achievementIndivBox}>
-              <FontAwesome5 name= {this.state.icon4Name} size={50} color= '#21B6A8' onPress={() => window.alert(this.state.achievementDesc4)}/>
-            </View>
-            <View style= {styles.achievementIndivBox}>
-              <FontAwesome5 name= {this.state.icon5Name} size={50} color= '#21B6A8' onPress={() => window.alert(this.state.achievementDesc5)}/>
-            </View>
-            <View style= {styles.achievementIndivBox}>
-              <FontAwesome5 name= {this.state.icon6Name} size={50} color= '#21B6A8' onPress={() => window.alert(this.state.achievementDesc6)}/>
+              <FontAwesome5 name= {this.state.icon3Name} size={50} color= {this.state.achievement3Color} onPress={() => this.showAlert(this.state.achievementDesc3)}/>
             </View>
           </View>
           <View style= {styles.achievementContainer}>
             <View style= {styles.achievementIndivBox}>
-              <FontAwesome5 name= {this.state.icon7Name} size={50} color= '#21B6A8' onPress={() => window.alert(this.state.achievementDesc7)}/>
+              <FontAwesome5 name= {this.state.icon4Name} size={50} color= {this.state.achievement4Color} onPress={() => this.showAlert(this.state.achievementDesc4)}/>
             </View>
             <View style= {styles.achievementIndivBox}>
-              <FontAwesome5 name= {this.state.icon8Name} size={50} color= '#21B6A8' onPress={() => window.alert(this.state.achievementDesc8)}/>
+              <FontAwesome5 name= {this.state.icon5Name} size={50} color= {this.state.achievement5Color} onPress={() => this.showAlert(this.state.achievementDesc5)}/>
+            </View>
+            <View style= {styles.achievementIndivBox}>
+              <FontAwesome5 name= {this.state.icon6Name} size={50} color= {this.state.achievement6Color} onPress={() => this.showAlert(this.state.achievementDesc6)}/>
+            </View>
+          </View>
+          <View style= {styles.achievementContainer}>
+            <View style= {styles.achievementIndivBox}>
+              <FontAwesome5 name= {this.state.icon7Name} size={50} color= {this.state.achievement7Color} onPress={() => this.showAlert(this.state.achievementDesc7)}/>
+            </View>
+            <View style= {styles.achievementIndivBox}>
+              <FontAwesome5 name= {this.state.icon8Name} size={50} color= {this.state.achievement8Color} onPress={() => this.showAlert(this.state.achievementDesc8)}/>
             </View>
           </View>
         </View>
+
+        <AwesomeAlert
+          show={this.state.showAlert}
+          showProgress={false}
+          title="Achievement"
+          message= {this.state.alertMessage}
+          closeOnTouchOutside={true}
+          closeOnHardwareBackPress={false}
+          showCancelButton={true}
+          cancelText="Close"
+          onCancelPressed={() => {
+            this.hideAlert();
+          }}
+        />
+
+        </ScrollView>
       </SafeAreaView>
     );
   }
@@ -212,6 +260,9 @@ const styles = StyleSheet.create ({
     paddingLeft: 50,
     paddingRight: 50,
     paddingTop: 5
+  },
+  scrollContainer: {
+    backgroundColor: '#f2f2f2'
   },
 });
 

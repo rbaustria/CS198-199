@@ -18,6 +18,8 @@ import { RNHealthKit } from 'react-native-healthkit';
 import { Header } from 'react-native-elements';
 import { createStackNavigator } from 'react-navigation';
 import Octicons from 'react-native-vector-icons/Octicons.js';
+import * as Animatable from 'react-native-animatable';
+
 let paddingSize = 0;
 
 if(Platform.OS === 'android'){
@@ -54,7 +56,7 @@ export default class ShareDataScreen extends Component {
     }
 
     if (Platform.OS === 'ios') {
-      const to = ['rbaustria@up.edu.ph']
+      const to = ['']
       try {
         let option = {
               permissions: {
@@ -63,7 +65,7 @@ export default class ShareDataScreen extends Component {
           };
         let temp = (new Date(2014,9,26)).toISOString();
         let options = {
-          unit: 'mgPerdL',	// optional; default 'mmolPerL'
+          unit: 'mgPerdL',  // optional; default 'mmolPerL'
           startDate: temp, // required
           ascending: false, // optional; default false
         };
@@ -97,8 +99,6 @@ export default class ShareDataScreen extends Component {
             });
           });
         });
-
-        window.alert('Your data has been sent! Thank you for participating in the study!')
       }
       catch(error) {
         console.log(error)
@@ -194,9 +194,9 @@ export default class ShareDataScreen extends Component {
 
             <View style= {{flex: 1, paddingTop: 50, textAlign: 'center'}}>
               <TouchableOpacity style= {styles.touchablestyle} onPress={() => {this.exportData()}}>
-                <View style={styles.button}>
+                <Animatable.View animation="pulse" easing="ease-out" iterationCount="infinite" style={styles.button}>
                   <Text style= {styles.buttontext}>Send Data</Text>
-                </View>
+                </Animatable.View>
               </TouchableOpacity>
               <TouchableOpacity style= {styles.touchablestyle} onPress= {() => {this.showAbout()}}>
                 <Text style= {styles.text}>About</Text>

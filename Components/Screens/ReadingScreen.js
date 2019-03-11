@@ -13,14 +13,17 @@ import {
   Keyboard,
   TouchableWithoutFeedback,
   AsyncStorage,
-  DeviceEventEmitter
+  DeviceEventEmitter,
+  KeyboardAvoidingView
 } from 'react-native';
 
 import { Header } from 'react-native-elements';
-import { RNHealthKit } from 'react-native-healthkit';
+import { RNHealthKit } from 'rn-healthkit';
 import AchievementScreen from './AchievementScreen.js';
-import Entypo from 'react-native-vector-icons/Entypo.js';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5.js';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons.js';
+import * as Animatable from 'react-native-animatable';
+import HideWithKeyboard from 'react-native-hide-with-keyboard';
 
 const { width: WIDTH } = Dimensions.get('window')
 const { height: HEIGHT } = Dimensions.get('window')
@@ -35,11 +38,12 @@ export default class ReadingScreen extends Component {
       formatDate: '',
       reading: '',
       level: '',
-      feedback: '',
-      displayIcon: 'emoji-flirt',
+      feedback: 'What is your blood glucose today?',
+      displayIcon: 'comment-question-outline',
       displayLevel: '',
       readingValidate: false,
-      count: ''
+      count: '',
+      keyboardShown: false
     }
 
   };
@@ -102,23 +106,34 @@ export default class ReadingScreen extends Component {
 
   displayFeedback (value) {
     var aboveFeedbackArray = [
-      'Are you sure you still want to live? Keep that blood sugar down would you?',
+      'Are you sure you still want to breathe? Keep that blood sugar down would you?',
       'Have you heard about the cure for diabetes? Cause I haven’t, so keep that blood sugar low.',
       'I said, "Help yourself" not help yourself with more food.',
       'Life is sweet and so are candies. How much did you have?!',
+      'Did you know that having high blood sugar is not cool? Oh, guess you`re not cool then.',
+      'Stop lying to me! I saw you gobble that ice cream up. If you want me to be happy, keep your sugar low.',
+      'May the force ~to keep your blood sugar low~ be with you.',
+      'My great great great great great great grandapp told me I should yell at someone for having high blood sugar. *YELLS*'
     ];
 
     var normalFeedbackArray = [
       'Good job! Now we just have to keep this up until FOREVER!',
       'Nice! If you keep this up, I won’t be snooping around your text messages. Kidding!',
-      'That’s what I’m talking about! I heard keeping a normal blood sugar will earn you something nice.'
+      'That’s what I’m talking about! I heard keeping a normal blood sugar will earn you something nice.',
+      'Looks like someone`s got a normal blood sugar! Yes that`s you! Good job!',
+      'I have good news for you: you`re NORMAL! Both blood sugar and everything else.',
+      'I would like to use this opportunity to give you a digital pat for having a normal blood sugar level. *pats*',
+      'Pssst. Hey you! Yes you! I like that blood sugar of yours. *wink*'
     ];
 
     var belowFeedbackArray = [
-      'I think you should sit down, reflect on your blood sugar and munch on some bananas.',
+      'I think you should sit down, reflect on your blood sugar and munch on a banana.',
       'You need sugar too you know! Get that blood glucose to normal level so I can talk to you again.',
       'There’s a secret I want to tell you. But first, you should go yourself some sugar.',
-      'I told you that too much sugar is not healthy. Did you think too less is better? Work on getting that to a normal level.'
+      'I told you that too much sugar is not healthy. Did you think too less is better? Work on getting that to a normal level.',
+      'What? Your blood sugar is that LOW? That`s it, I`m reading the next text message that comes.',
+      'Your blood sugar is low. It is just like my patience with you-running low. Get that to normal level will you!!',
+      'If you want this relationship to work, you have to munch on some bananas to get your sugar to normal.'
     ];
 
     var index;
@@ -128,7 +143,7 @@ export default class ReadingScreen extends Component {
       var temp = aboveFeedbackArray[index];
       this.setState({
         feedback: temp,
-        displayIcon: 'emoji-sad',
+        displayIcon: 'emoticon-sad',
         displayLevel: 'Above'
       })
     }
@@ -137,7 +152,7 @@ export default class ReadingScreen extends Component {
       var temp = normalFeedbackArray[index];
       this.setState({
         feedback: temp,
-        displayIcon: 'emoji-happy',
+        displayIcon: 'emoticon-excited',
         displayLevel: 'Normal'
       })
     }
@@ -146,13 +161,14 @@ export default class ReadingScreen extends Component {
       var temp = belowFeedbackArray[index];
       this.setState({
         feedback: temp,
-        displayIcon: 'emoji-neutral',
+        displayIcon: 'emoticon-neutral',
         displayLevel: 'Below'
       })
     }
   }
 
   saveReading = () => {
+      Keyboard.dismiss()
       try {
         let loadedDate = this.state.date
         let loadedReading = parseInt(this.state.reading)
@@ -452,6 +468,8 @@ export default class ReadingScreen extends Component {
   render () {
     if(Platform.OS === 'android'){
             return (
+      <KeyboardAvoidingView style={styles.safeArea} behavior={null}>
+      
       <SafeAreaView style= {styles.safeArea}>
         <View>
           <StatusBar barStyle='light-content' hidden= {false}/>
@@ -459,21 +477,28 @@ export default class ReadingScreen extends Component {
         </View>
         <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
           <View style= {styles.background}>
+            <HideWithKeyboard>
             <View style= {styles.feedbackbackground}>
               <View style= {{justifyContent: 'center'}}>
-                <Entypo name={this.state.displayIcon} {...feedbackIcon}/>
+                <MaterialCommunityIcons name={this.state.displayIcon} {...feedbackIcon}/>
               </View>
               <Text style= {styles.text}>{this.state.feedback}</Text>
             </View>
+            </HideWithKeyboard>
             <View style= {styles.infocontainer}>
-              <Text style= {styles.header}>Enter blood glucose:</Text>
+
+              <HideWithKeyboard>
+                <Text style= {styles.header}>My blood glucose is</Text>
+              </HideWithKeyboard>
+
                 <TextInput style= {styles.numericinput}
                  ref={'GlucoseTextInput'}
                  maxLength= {3}
                  keyboardType= 'numeric'
-                 placeholder= 'Blood Glucose'
+                 placeholder= 'Tap here to type'
                  onChangeText= {(reading) => this.validateReading(reading)}
                  />
+
               <View style= {styles.buttoncontainer}>
                 <TouchableOpacity disabled= {!this.state.readingValidate ? true : false} onPress= {() => {this.saveReading()}}>
                 <View style= {styles.iconborder}>
@@ -485,47 +510,58 @@ export default class ReadingScreen extends Component {
           </View>
         </TouchableWithoutFeedback>
       </SafeAreaView>
+      </KeyboardAvoidingView>
     );
     }
     else{
       return (
-      <SafeAreaView style= {styles.safeArea}>
-        <View>
-          <StatusBar barStyle='light-content' hidden= {false}/>
-          <Header placement= 'left' centerComponent={{ text: 'Add Reading', placement: 'center', style: { color: '#fff', fontFamily: 'Avenir', fontSize: 20, fontWeight: 'bold' } }} outerContainerStyles={{ backgroundColor: '#21B6A8', height: 60}}/>
-        </View>
-        <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-          <View style= {styles.background}>
-            <View style= {styles.feedbackbackground}>
-              <View style= {{justifyContent: 'center', flexDirection: 'column'}}>
-                <Entypo name= {this.state.displayIcon} {...feedbackIcon}/>
-                <Text style= {styles.levelText}>{this.state.displayLevel}</Text>
-              </View>
-              <Text style= {styles.text}>{this.state.feedback}</Text>
-            </View>
-            <View style= {styles.infocontainer}>
-              <Text style= {styles.header}>Enter blood glucose:</Text>
-              <View style= {styles.iconborder}>
-                 <FontAwesome5 name= 'syringe' {...iconStyles}/>
-              </View>
-                <TextInput style= {styles.numericinput}
-                 ref={'GlucoseTextInput'}
-                 maxLength= {3}
-                 keyboardType= 'numeric'
-                 placeholder= 'Blood Glucose'
-                 onChangeText= {(reading) => this.validateReading(reading)}
-                 />
-              <View style= {styles.buttoncontainer}>
-                <TouchableOpacity disabled= {!this.state.readingValidate ? true : false} onPress= {() => {this.saveReading()}}>
-                  <View style={styles.button}>
-                    <Text style= {styles.buttontext}>Enter</Text>
-                  </View>
-                </TouchableOpacity>
-              </View>
-            </View>
+        <KeyboardAvoidingView style={styles.safeArea} behavior="padding">
+        <SafeAreaView style= {styles.safeArea}>
+          <View>
+            <StatusBar barStyle='light-content' hidden= {false}/>
+            <Header placement= 'left' centerComponent={{ text: 'Add Reading', placement: 'center', style: { color: '#fff', fontFamily: 'Avenir', fontSize: 20, fontWeight: 'bold' } }} outerContainerStyles={{ backgroundColor: '#21B6A8', height: 60}}/>
           </View>
-        </TouchableWithoutFeedback>
-      </SafeAreaView>
+            <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+              <View style= {styles.background}>
+                <View style= {styles.feedbackbackground}>
+                  <View style= {{justifyContent: 'center', flexDirection: 'column'}}>
+                    <MaterialCommunityIcons name= {this.state.displayIcon} {...feedbackIcon}/>
+                    <Animatable.Text animation="pulse" easing="ease-out" iterationCount="infinite" style= {styles.levelText}>{this.state.displayLevel}</Animatable.Text>
+                  </View>
+                  <Text style= {styles.text}>{this.state.feedback}</Text>
+                </View>
+                <View style= {styles.infocontainer}>
+
+                  <HideWithKeyboard>
+                    <View style= {styles.iconborder}>
+                       <FontAwesome5 name= 'syringe' {...iconStyles}/>
+                    </View>
+                  </HideWithKeyboard>
+
+                  <HideWithKeyboard>
+                    <Text style= {styles.header}>My blood glucose is</Text>
+                  </HideWithKeyboard>
+
+                    <TextInput style= {styles.numericinput}
+                     ref={'GlucoseTextInput'}
+                     maxLength= {3}
+                     keyboardType= 'numeric'
+                     placeholder= 'Tap here to type'
+                     onChangeText= {(reading) => this.validateReading(reading)}
+                     />
+                  <View style= {styles.buttoncontainer}>
+                    <TouchableOpacity disabled= {!this.state.readingValidate ? true : false} onPress= {() => {this.saveReading()}}>
+                      <Animatable.View animation="pulse" easing="ease-out" iterationCount="infinite" style={styles.button}>
+                        <Text style= {styles.buttontext}>Save</Text>
+                      </Animatable.View>
+                    </TouchableOpacity>
+                  </View>
+
+                </View>
+              </View>
+            </TouchableWithoutFeedback>
+            </SafeAreaView>
+          </KeyboardAvoidingView>
     );
     }
 
@@ -548,13 +584,13 @@ const iconStyles = {
 const styles = StyleSheet.create ({
   safeArea: {
     flex: 1,
-    backgroundColor: '#21B6A8',
+    backgroundColor: '#21B6A8'
   },
   background: {
     flex: 1,
     alignSelf: 'stretch',
     backgroundColor: '#f2f2f2',
-    padding: 20,
+    padding: 20
   },
   feedbackbackground: {
     flexDirection: 'row',
@@ -578,23 +614,24 @@ const styles = StyleSheet.create ({
     shadowOpacity: 0.8,
     shadowRadius: 2,
     elevation: 1,
+    paddingBottom: 20,
+    justifyContent: 'flex-end'
   },
   header: {
-    marginTop: 20,
+    marginTop: 15,
     color: '#859593',
     fontFamily: 'Avenir',
     fontSize: 25,
-    fontWeight: 'bold',
-    marginVertical: 15
+    fontWeight: 'bold'
   },
   text: {
     color: '#859593',
     fontFamily: 'Avenir',
     fontSize: 16,
     textAlign: 'left',
-    paddingLeft: 5,
     paddingRight: 50,
-    paddingTop: 5
+    paddingTop: 5,
+    paddingLeft: 15
   },
   numericinput: {
     width: WIDTH - 200,
@@ -603,7 +640,7 @@ const styles = StyleSheet.create ({
     fontFamily: 'Avenir',
     backgroundColor: '#ecf7f9',
     color: '#859593',
-    marginVertical: 30,
+    marginVertical: 25,
     shadowColor: '#d3d3d3',
     shadowOffset: { width: 0, height: 6 },
     shadowOpacity: 0.8,
@@ -652,7 +689,7 @@ const styles = StyleSheet.create ({
   },
   levelText: {
     color: '#859593',
-    fontFamily: 'Avenir',
+    fontFamily: 'Avenir'
   }
 
 });

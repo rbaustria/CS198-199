@@ -17,7 +17,7 @@ import {
 
 import { createStackNavigator } from 'react-navigation';
 import AppleHealthKit from 'rn-apple-healthkit';
-import { RNHealthKit } from 'react-native-healthkit';
+import { RNHealthKit } from 'rn-healthkit';
 import EditInfo from './EditInfo';
 
 
@@ -70,14 +70,21 @@ export default class OnboardingScreens extends Component {
     AsyncStorage.setItem('streak', streak).done();
 
     if (Platform.OS === 'android') {
+      // add GoogleFit access perms
       let temp = (new Date(2014,9,26)).toISOString();
       AsyncStorage.setItem('newStartDate', temp).done();
       this.testfun = this.navigateToNextScreen.bind(this)
       setTimeout(this.navigateToNextScreen, 1000)
+
+      
     }
     else {
       // For Healthkit
       // According to Apple's privacy policy, we can't ask to allow permissions again, user must manually allow the perms.
+
+      RNHealthKit.isSupportHealthKit((error, events) => {
+        console.log(events);
+      })
 
       let permissions = {
           read: ['BloodGlucose', 'BiologicalSex', 'DateOfBirth'],

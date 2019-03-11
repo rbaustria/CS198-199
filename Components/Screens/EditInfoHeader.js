@@ -7,7 +7,6 @@ import {
 } from 'react-native';
 
 import Octicons from 'react-native-vector-icons/Octicons.js';
-import LinearGradient from 'react-native-linear-gradient';
 import { createStackNavigator } from 'react-navigation';
 
 export default class EditInfoHeader extends Component {

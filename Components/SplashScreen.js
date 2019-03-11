@@ -37,9 +37,11 @@ export default class SplashScreen extends Component {
       else if (this.state.firstLaunch == 'true') {
         return <App/>;
       }
-      else {
+      else if (this.state.firstLaunch == 'false'){
           return <HomeScreen/>;
           // return <App/>;
       }
     }
 }
+
+// AppRegistry.registerComponent('SplashScreen', () => SplashScreen);

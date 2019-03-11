@@ -23,7 +23,7 @@ export default class Screen extends Component {
         {/* First screen */}
         <View style={styles.slide}>
           <Icon name='cubes' {...iconStyles} />
-          <Text style={styles.header}>Sugar</Text>
+          <Text style={styles.header}>SugarTraces</Text>
           <Text style={styles.text}>Start living healthy by being conscious about your blood sugar.</Text>
         </View>
         {/* Second screen */}

@@ -29,16 +29,6 @@ import Octicons from 'react-native-vector-icons/Octicons.js';
 const { width: WIDTH } = Dimensions.get('window')
 const key = '@MyApp:key';
 
-let iconWarpSize = 110;
-if (Platform.OS === 'android'){
-  iconWarpSize = 110;
-
-}
-
-else{
-  iconWarpSize = 140;
-}
-
 export default class EditInfo extends Component<{}> {
   static navigationOptions = {
     headerMode: 'none',
@@ -130,7 +120,6 @@ export default class EditInfo extends Component<{}> {
                     <View style= {styles.container}>
                       <Octicons name='person' {...iconStyles} />
                     </View>
-
                   </View>
                   <View style= {styles.textboxcontainer}>
                     <TextInput
@@ -138,12 +127,9 @@ export default class EditInfo extends Component<{}> {
                       onChangeText= {(name) => this.validateName(name)}
                       placeholder= {'Name'}
                       placeholderTextcolor= {'rbga(255,255,255,0.7)'}/>
-                  </View>
-
-                    <View style={styles.pickercontainer}>
-                     <DatePicker
+                    <DatePicker
                       // Change marginTop to change distance from the textbox
-                      style={{width: 200, marginTop: 50}}
+                      style={{width: 200, marginTop: 10}}
                       date={this.state.androidBirthday}
                       mode="date"
                       placeholder="select date"
@@ -166,6 +152,7 @@ export default class EditInfo extends Component<{}> {
                       }}
                       onDateChange={(date) => {this.setState({date: date})}}
                     />
+                    <View style={styles.pickercontainer}>
                       <Picker
                         // Change pickercontainer or picker to change position in Android
                         style = {styles.picker}
@@ -180,9 +167,9 @@ export default class EditInfo extends Component<{}> {
                         <Text style= {styles.buttontext}>DONE</Text>
                       </View>
                     </TouchableOpacity>
-
+                  </View>
                 </View>
-                </View>
+              </View>
             </TouchableWithoutFeedback>
         </SafeAreaView>
 
@@ -203,7 +190,7 @@ const iconStyles = {
 const styles = StyleSheet.create({
   inputcontainer: {
     flexDirection: 'column',
-    flex: 1,
+    flex: 1
   },
   safeArea: {
     flex: 1,
@@ -238,18 +225,13 @@ const styles = StyleSheet.create({
   picker: {
     height: Platform.OS === 'ios' ? 40 : 30,
     width: 150,
+    position: 'absolute',
     bottom: Platform.OS === 'ios' ? 100 : 70,
-    marginBottom: 15
-
+    paddingTop: 10
   },
   pickercontainer: {
     alignItems: 'center',
-    paddingTop: 0,
-    marginTop: 5,
-    alignItems: 'center',
-    flexDirection: 'column',
-    flex:1,
-
+    paddingTop: 70
   },
   label: {
     color: '#859593',
@@ -280,12 +262,11 @@ const styles = StyleSheet.create({
   header: {
     flex: 1,
     alignItems: 'center',
-    justifyContent: 'center',
-    flexDirection: 'column'
+    justifyContent: 'center'
   },
   iconWarp: {
-    width: iconWarpSize,
-    height: iconWarpSize,
+    width: 140,
+    height: 140,
     borderRadius: 60,
     borderColor: '#21B6A8',
     borderWidth: 10,
@@ -306,8 +287,7 @@ const styles = StyleSheet.create({
   textboxcontainer: {
     marginTop: 50,
     justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 20,
+    alignItems: 'center'
   },
   buttoncontainer: {
     marginTop: 60
