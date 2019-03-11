@@ -19,6 +19,20 @@ import Octicons from 'react-native-vector-icons/Octicons.js';
 import * as Animatable from 'react-native-animatable';
 import AwesomeAlert from 'react-native-awesome-alerts';
 
+
+let iconCircleSize = 0;
+let iconStyleSize = 0;
+
+if (Platform.OS === 'android'){
+  iconCircleSize = 110;
+  iconStyleSize = 60;
+
+}
+else{
+  iconCircleSize = 140;
+  iconStyleSize = 80;
+}
+
 export default class Profile extends Component {
   constructor(props) {
     super(props);
@@ -163,7 +177,7 @@ export default class Profile extends Component {
 }
 
 const iconStyles = {
-  size: 80,
+  size: iconStyleSize,
   color: '#21B6A8',
   flex: 1,
   borderRadius: 100,
@@ -211,8 +225,8 @@ const styles = StyleSheet.create ({
     alignContent: 'flex-start',
   },
   iconCircle: {
-    width: 140,
-    height: 140,
+    width: iconCircleSize,
+    height: iconCircleSize,
     borderRadius: 60,
     borderColor: '#21B6A8',
     borderWidth: 10,
