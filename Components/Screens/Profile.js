@@ -18,8 +18,7 @@ import Icon from 'react-native-vector-icons/Ionicons.js';
 import Octicons from 'react-native-vector-icons/Octicons.js';
 import * as Animatable from 'react-native-animatable';
 import AwesomeAlert from 'react-native-awesome-alerts';
-
-
+import FontAwesome from 'react-native-vector-icons/FontAwesome.js';
 let iconCircleSize = 0;
 let iconStyleSize = 0;
 
@@ -32,7 +31,6 @@ else{
   iconCircleSize = 140;
   iconStyleSize = 80;
 }
-
 export default class Profile extends Component {
   constructor(props) {
     super(props);
@@ -44,6 +42,8 @@ export default class Profile extends Component {
       day: 'day',
       days: 'days',
       achievementCount: '',
+      userIcon: 'male',
+      tempGender: '',
       lastRecorded: 'No readings recorded',
       streakTooltip: 'Streak is maintained by entering a normal blood glucose reading. Entering an above/below normal blood glucose reading will automatically reset your streak.',
     }
@@ -54,7 +54,7 @@ export default class Profile extends Component {
       const tempName = await AsyncStorage.getItem('name');
       const tempcount = await AsyncStorage.getItem('recordedReading');
       const tempStreakCount = await AsyncStorage.getItem('streak');
-
+      const tempGender = await AsyncStorage.getItem('gender');
 
       // To get the number of achievements
       var temp = await AsyncStorage.getItem('achievements');
@@ -65,19 +65,29 @@ export default class Profile extends Component {
       let parsedData = this.state.parsedData;
       const storedData = await AsyncStorage.getItem('storedData');
       const parsed = JSON.parse(storedData);
-      if(parsed != null){
+
+      if (parsed != null) {
         const tempLastRecorded = (parsed[parsed.length-1].formatDate).replace(/\n/g, ' ') + ', ' + (parsed[parsed.length-1].level)
         this.setState({
           lastRecorded: tempLastRecorded,
         })
       }
 
+      if (tempGender == 'Female') {
+        this.setState({
+          userIcon: 'female'
+        })
+      }
+
+
       this.setState({
         name: tempName,
         count: tempcount,
         streak: tempStreakCount,
-        achievementCount: tempAchievementCount,
+        achievementCount: tempAchievementCount
       })
+
+
     }
     catch (error) {
       window.alert(error);
@@ -125,7 +135,7 @@ export default class Profile extends Component {
           <View style= {styles.infoContainer}>
             <View style= {styles.iconCircle}>
               <View style= {styles.container}>
-                <Octicons name='person' {...iconStyles} />
+                <FontAwesome name={this.state.userIcon} {...iconStyles} />
               </View>
             </View>
             <Text style= {styles.header}> {this.state.name} </Text>
@@ -149,12 +159,10 @@ export default class Profile extends Component {
 
             <View style= {styles.textcontainer}>
               <Animatable.View animation="tada" easing="ease-out" iterationCount="infinite">
-                <Octicons name='star' {...infoIconStyle} onPress={() => this.showAlert()}/>
+                <Octicons name='star' {...infoIconStyle} onPress={() => this.showAlert()} />
               </Animatable.View>
               <Text style= {styles.text}> Current streak: {this.state.streak} {this.isPlural(this.state.streak)}</Text>
             </View>
-
-
           </View>
         </View>
         <AwesomeAlert

@@ -70,13 +70,10 @@ export default class OnboardingScreens extends Component {
     AsyncStorage.setItem('streak', streak).done();
 
     if (Platform.OS === 'android') {
-      // add GoogleFit access perms
       let temp = (new Date(2014,9,26)).toISOString();
       AsyncStorage.setItem('newStartDate', temp).done();
       this.testfun = this.navigateToNextScreen.bind(this)
       setTimeout(this.navigateToNextScreen, 1000)
-
-      
     }
     else {
       // For Healthkit
