@@ -136,7 +136,7 @@ export default class ShareDataScreen extends Component {
     }
     else {
       // No integration with GoogleFit, only export app data.
-
+      const to = ['rbaustria@up.edu.ph, dccaingat@up.edu.ph'];
       const gender = await AsyncStorage.getItem('gender');
       const stored_dob = await AsyncStorage.getItem('dob');
       const storedData = await AsyncStorage.getItem('storedData');
@@ -158,7 +158,7 @@ export default class ShareDataScreen extends Component {
   showAbout() {
     this.setState({
       aboutIsVisible: true,
-      aboutMsg: 'This application was made by Ronnel Roi B. Austria and Deanne Faye C. Caingat as a requirement for their Special Problems class in the University of the Philippines Diliman.'
+      aboutMsg: 'SugarTraces is a mobile health application which aims to help users live a healthier lifestyle by maintaining healthy blood glucose levels. It has gamified elements such as achievements, streaks, and feedback messages for entered blood glucose readings. This application was made by Ronnel Roi B. Austria and Deanne Faye C. Caingat as a requirement for their Special Problems class in the University of the Philippines Diliman.'
     })
   }
 
