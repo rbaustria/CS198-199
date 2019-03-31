@@ -74,6 +74,7 @@ export default class OnboardingScreens extends Component {
       AsyncStorage.setItem('newStartDate', temp).done();
       this.testfun = this.navigateToNextScreen.bind(this)
       setTimeout(this.navigateToNextScreen, 1000)
+
     }
     else {
       // For Healthkit

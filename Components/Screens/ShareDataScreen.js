@@ -14,12 +14,11 @@ import {
 
 import email from 'react-native-email';
 import AppleHealthKit from 'rn-apple-healthkit';
-import { RNHealthKit } from 'react-native-healthkit';
+import { RNHealthKit } from 'rn-healthkit';
 import { Header } from 'react-native-elements';
 import { createStackNavigator } from 'react-navigation';
 import Octicons from 'react-native-vector-icons/Octicons.js';
 import * as Animatable from 'react-native-animatable';
-
 let paddingSize = 0;
 
 if(Platform.OS === 'android'){
@@ -39,24 +38,54 @@ export default class ShareDataScreen extends Component {
       aboutMsg: '',
       ackMsg: '',
       termsMsg: '',
+      formatDate: ''
     }
+  }
+
+  getInputDate() {
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    var day = new Date().getDate();
+    var month = new Date().getMonth() + 1;
+    var year = new Date().getFullYear();
+    var hour = new Date().getHours();
+    var minutes = new Date().getMinutes();
+    var currFormatDate = months[month - 1] + ' ' + day + ', ' + year; // Date to be displayed
+
+    // For display formatting. Ex. Add '0' for 17:02 instead of 17:2
+    if (minutes <= 9) {
+        currFormatDate = currFormatDate + '\n' + hour + ':' + '0' + minutes; // Date to be displayed
+    }
+    else {
+        currFormatDate = currFormatDate + '\n' + hour + ':' + minutes; // Date to be displayed
+    }
+
+    return currFormatDate;
   }
 
   exportData = async () => {
 
     var temp = await AsyncStorage.getItem('achievements');
-    var parsed = JSON.parse(temp);
+    var parsedAchievements = JSON.parse(temp);
+    var achDateArray = parsedAchievements.map(obj => obj.date);
+    var parsed = parsedAchievements.map(obj => obj.number);
 
     // Achievement 7 unclocked. View Acknowledgement.
     if (!parsed.includes('7')) {
-      const tempArr = parsed;
-      tempArr.push('7');
+      const tempArr = parsedAchievements;
+      // Get unlock date (current date)
+      this.getInputDate()
+      let tempDate = this.getInputDate();
+      let achievementData = {
+        date: tempDate,
+        number: '7'
+      }
+
+      tempArr.push(achievementData);
       AsyncStorage.setItem('achievements', JSON.stringify(tempArr));
-      window.alert('You got an achievement for participating in the study!')
     }
 
     if (Platform.OS === 'ios') {
-      const to = ['']
+      const to = ['dccaingat@up.edu.ph']
       try {
         let option = {
               permissions: {
@@ -65,7 +94,7 @@ export default class ShareDataScreen extends Component {
           };
         let temp = (new Date(2014,9,26)).toISOString();
         let options = {
-          unit: 'mgPerdL',  // optional; default 'mmolPerL'
+          unit: 'mgPerdL',	// optional; default 'mmolPerL'
           startDate: temp, // required
           ascending: false, // optional; default false
         };
@@ -91,10 +120,18 @@ export default class ShareDataScreen extends Component {
                 data.sex = sex;
 
                 email(to, {
-                    subject: 'Sugar Health Data',
+                    subject: 'SugarTraces Health Data',
                     body: JSON.stringify(data)
                 }).catch(console.error)
 
+                // fetch(url, {
+                //   method: 'POST',
+                //   body: JSON.stringify(data),
+                //   headers: {
+                //     'Content-Type': 'application/json'
+                //   }
+                // }).then((resp) => console.log(resp), (err) => console.error(err));
+                //console.log(data);
               });
             });
           });
@@ -106,7 +143,7 @@ export default class ShareDataScreen extends Component {
     }
     else {
       // No integration with GoogleFit, only export app data.
-      const to = ['rbaustria@up.edu.ph']
+      const to = [''];
       const gender = await AsyncStorage.getItem('gender');
       const stored_dob = await AsyncStorage.getItem('dob');
       const storedData = await AsyncStorage.getItem('storedData');
@@ -119,7 +156,7 @@ export default class ShareDataScreen extends Component {
         sex: gender
       };
       email(to, {
-          subject: 'Sugar Health Data',
+          subject: 'SugarTraces Health Data',
           body: JSON.stringify(data)
       }).catch(console.error)
     }
@@ -128,7 +165,7 @@ export default class ShareDataScreen extends Component {
   showAbout() {
     this.setState({
       aboutIsVisible: true,
-      aboutMsg: 'This application was made by Ronnel Roi B. Austria and Deanne Faye C. Caingat as a requirement for their Special Problems class in the University of the Philippines Diliman.'
+      aboutMsg: 'SugarTraces is a mobile health application which aims to help users live a healthier lifestyle by maintaining healthy blood glucose levels. It has gamified elements such as achievements, streaks, and feedback messages for entered blood glucose readings. This application was made by Ronnel Roi B. Austria and Deanne Faye C. Caingat as a requirement for their Special Problems class in the University of the Philippines Diliman.'
     })
   }
 
@@ -139,12 +176,24 @@ export default class ShareDataScreen extends Component {
     })
 
     var temp = await AsyncStorage.getItem('achievements');
-    var parsed = JSON.parse(temp);
+    var parsedAchievements = JSON.parse(temp);
+    var achDateArray = parsedAchievements.map(obj => obj.date);
+    var parsed = parsedAchievements.map(obj => obj.number);
+
+    let tempDate = this.getInputDate();
 
     // Achievement 8 unclocked. View Acknowledgement.
     if (!parsed.includes('8')) {
-      const tempArr = parsed;
-      tempArr.push('8');
+      const tempArr = parsedAchievements;
+      // Get unlock date (current date)
+
+      let tempDate = this.getInputDate();
+      let achievementData = {
+        date: tempDate,
+        number: '8'
+      }
+
+      tempArr.push(achievementData);
       AsyncStorage.setItem('achievements', JSON.stringify(tempArr));
     }
   }
@@ -152,7 +201,7 @@ export default class ShareDataScreen extends Component {
   showTerms() {
     this.setState({
       termsIsVisible: true,
-      termsMsg: 'This application only collects the following health data: Date of birth, Sex, and Blood Glucose readings. \n The said data will be analyzed and kept among the researchers.'
+      termsMsg: 'This application does not collect and upload data to cloud. The user will be the only one capable of exporting data through email.'
     })
   }
 

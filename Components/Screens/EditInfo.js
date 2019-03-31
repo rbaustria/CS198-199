@@ -132,21 +132,20 @@ export default class EditInfo extends Component<{}> {
                     </View>
 
                   </View>
-                  <View style= {styles.textboxcontainer}>
+                  
                     <TextInput
                       style= {styles.textinput}
                       onChangeText= {(name) => this.validateName(name)}
                       placeholder= {'Name'}
                       placeholderTextcolor= {'rbga(255,255,255,0.7)'}/>
-                  </View>
 
-                    <View style={styles.pickercontainer}>
+
                      <DatePicker
                       // Change marginTop to change distance from the textbox
                       style={{width: 200, marginTop: 50}}
                       date={this.state.androidBirthday}
                       mode="date"
-                      placeholder="select date"
+                      placeholder="Date of Birth"
                       format="YYYY-MM-DD"
                       minDate="1900-01-01"
                       maxDate="2019-06-01"
@@ -164,7 +163,7 @@ export default class EditInfo extends Component<{}> {
                         }
                         // ... You can check the source to find the other keys.
                       }}
-                      onDateChange={(date) => {this.setState({date: date})}}
+                      onDateChange={(date) => {this.setState({androidBirthday: date})}}
                     />
                       <Picker
                         // Change pickercontainer or picker to change position in Android
@@ -174,7 +173,7 @@ export default class EditInfo extends Component<{}> {
                         <Picker.Item label="Female" value="Female"/>
                         <Picker.Item label="Male" value="Male"/>
                       </Picker>
-                    </View>
+
                     <TouchableOpacity style={styles.buttoncontainer} disabled= {!this.state.nameValidate ? true : false} onPress={this.storeDataAndNextScreen.bind(this)}>
                       <View style={styles.button}>
                         <Text style= {styles.buttontext}>DONE</Text>

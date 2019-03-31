@@ -24,6 +24,7 @@ import FontAwesome5 from 'react-native-vector-icons/FontAwesome5.js';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons.js';
 import * as Animatable from 'react-native-animatable';
 import HideWithKeyboard from 'react-native-hide-with-keyboard';
+import AwesomeAlert from 'react-native-awesome-alerts';
 
 const { width: WIDTH } = Dimensions.get('window')
 const { height: HEIGHT } = Dimensions.get('window')
@@ -36,6 +37,7 @@ export default class ReadingScreen extends Component {
       storedData: [],
       date: '',
       formatDate: '',
+      tempGraphTime: '',
       reading: '',
       level: '',
       feedback: 'What is your blood glucose today?',
@@ -43,7 +45,8 @@ export default class ReadingScreen extends Component {
       displayLevel: '',
       readingValidate: false,
       count: '',
-      keyboardShown: false
+      keyboardShown: false,
+      showAlert: false
     }
 
   };
@@ -63,11 +66,36 @@ export default class ReadingScreen extends Component {
     var minutes = new Date().getMinutes();
     var seconds = new Date().getSeconds();
     var date = year + '-' + month + '-' + day + ' ' + hour + ':' + minutes + ':' + seconds; // Date to be stored in HealthKit
-    var currFormatDate = months[month - 1] + '\n' + day; // Date to be displayed in the graph
+    var currFormatDate = months[month - 1] + '\n' + day;
+    var currFormatTime;
+
+    // For graph formatting. Ex. Add '0' for 17:02 instead of 17:2
+    if (minutes <= 9) {
+        currFormatTime = currFormatDate + '\n' + hour + ':' + '0' + minutes; // Date to be displayed in the graph
+    }
+    else {
+        currFormatTime = currFormatDate + '\n' + hour + ':' + minutes; // Date to be displayed in the graph
+    }
+
     this.setState({
-      formatDate: currFormatDate
+      formatDate: currFormatDate,
+      tempGraphTime: currFormatTime
     })
     return date;
+  }
+
+  // Function to get time for when achievements are unlocked.
+  getCurrentTime() {
+    let hour = new Date().getHours();
+    let minutes = new Date().getMinutes();
+    var currFormatTime;
+    if (minutes <= 9) {
+        currFormatTime = hour + ':' + '0' + minutes; // Date to be displayed in the graph
+    }
+    else {
+        currFormatTime = hour + ':' + minutes; // Date to be displayed in the graph
+    }
+    return currFormatTime;
   }
 
   getReadingLevel(value) {
@@ -174,6 +202,7 @@ export default class ReadingScreen extends Component {
         let loadedReading = parseInt(this.state.reading)
         let loadedLevel = this.state.level
         let loadedFormatDate = this.state.formatDate
+        let loadedGraphTime = this.state.tempGraphTime
 
         this.displayFeedback(loadedReading);
 
@@ -182,8 +211,9 @@ export default class ReadingScreen extends Component {
           reading: loadedReading,
           level: loadedLevel,
           formatDate: loadedFormatDate,
+          graphTime: loadedGraphTime
         }
-        //console.log(newData);
+        // console.log(newData);
 
         // Writing the data to HealthKit
         try {
@@ -307,7 +337,7 @@ export default class ReadingScreen extends Component {
         compareDay = this.getDay(parsed[arrLen].formatDate);
         previousDay = this.getDay(parsed[arrLen-counter].formatDate);
         previousDayLevel = parsed[arrLen-counter].level;
-        console.log("LEVEL: ", previousDayLevel)
+        // console.log("LEVEL: ", previousDayLevel)
 
         if (parsed[arrLen].formatDate == parsed[arrLen-1].formatDate ) {
           if (parsed[arrLen].level == 'Normal' && parsed[arrLen-1].level == 'Normal') {
@@ -375,10 +405,20 @@ export default class ReadingScreen extends Component {
       var temp = await AsyncStorage.getItem('achievements');
       var temp2 = JSON.parse(temp);
 
-      if (!temp2.includes('6')) {
+      // Mapping to get date and number array from the achievements array stored in async
+      const achDateArray = this.state.temp2.map(obj => obj.date);
+      const achNumberArray = this.state.temp2.map(obj => obj.number);
+
+      if (!achNumberArray.includes('6')) {
         window.alert('You got an achievement for having a normal blood sugar level streak for three (3) days! Check your achievements page!')
         const tempArr = temp2;
-        tempArr.push('6');
+        let tempDate = this.state.formatDate + ', ' + yr + ' ' + currTime
+        let achievementData = {
+          date: tempDate,
+          number: '6'
+        }
+
+        tempArr.push(achievementData);
         AsyncStorage.setItem('achievements', JSON.stringify(tempArr));
       }
     }
@@ -414,50 +454,88 @@ export default class ReadingScreen extends Component {
     const parsed = JSON.parse(asyncData);
     var arrLen = parsed.length-1
 
-    // Achievement 1 unlocked. Enter your first reading.
-    if (value == '1') {
-      window.alert('Horray! You got an achievement for entering your first reading! Check your achievements page!')
-      const tempArr = temp2;
-      tempArr.push('1');
-      AsyncStorage.setItem('achievements', JSON.stringify(tempArr));
-    }
+    // Only split dates and achievements when at least one is unlocked to prevent errors
+    if (temp2 != null) {
+      const achDateArray = temp2.map(obj => obj.date);
+      const achNumberArray = temp2.map(obj => obj.number);
+      let yr = new Date().getFullYear();
+      let currTime = this.getCurrentTime();
 
-    // Achievement 2 unlocked. Enter 4 normal readings after an above reading.
-    if (value >= 4 && parsed[arrLen].level == 'Normal' && parsed[arrLen-1].level == 'Normal' && parsed[arrLen-2].level == 'Normal' && parsed[arrLen-3].level == 'Normal' && parsed[arrLen-4].level == 'Above' ) {
-      if (!temp2.includes('2')) {
-        window.alert('You got an achievement for entering four normal readings after being above normal! Check your achievements page!')
+      // Achievement 1 unlocked. Enter your first reading.
+      if (value == '1') {
+        this.pushAlert('Horray! You got an achievement for entering your first reading! Check your achievements page!')
         const tempArr = temp2;
-        tempArr.push('2');
+        let tempDate = this.state.formatDate + ', ' + yr + ' ' + currTime
+        let achievementData = {
+          date: tempDate,
+          number: '1'
+        }
+
+        tempArr.push(achievementData);
         AsyncStorage.setItem('achievements', JSON.stringify(tempArr));
       }
-    }
 
-    // Achievement 3 unlocked. Enter 5 normal readings in a row.
-    if (value >= 5) {
-      if (!temp2.includes('3') && parsed[arrLen].level == 'Normal' && parsed[arrLen-1].level == 'Normal' && parsed[arrLen-2].level == 'Normal' && parsed[arrLen-3].level == 'Normal' && parsed[arrLen-4].level == 'Normal') {
-            window.alert('You got an achievement for entering five normal readings in a row! Check your achievements page!');
-            const tempArr = temp2;
-            tempArr.push('3');
-            AsyncStorage.setItem('achievements', JSON.stringify(tempArr));
-          }
-
-      // Achievement 4 unlocked. Enter 4 normal readings after being below normal.
-      if (!temp2.includes('4') && parsed[arrLen].level == 'Normal' && parsed[arrLen-1].level == 'Normal' && parsed[arrLen-2].level == 'Normal' && parsed[arrLen-3].level == 'Normal' && parsed[arrLen-4].level == 'Below') {
-            window.alert('You got an achievement for entering four normal readings after being below normal! Check your achievements page!');
-            const tempArr = temp2;
-            tempArr.push('4');
-            AsyncStorage.setItem('achievements', JSON.stringify(tempArr));
-          }
-    }
-
-    // Achievement 5 unlocked. Enter 10 normal readings in a row.
-    if (value >= 10) {
-      if (!temp2.includes('5') && parsed[arrLen].level == 'Normal' && parsed[arrLen-1].level == 'Normal' && parsed[arrLen-2].level == 'Normal' && parsed[arrLen-3].level == 'Normal' && parsed[arrLen-4].level == 'Normal' && parsed[arrLen-5].level == 'Normal' && parsed[arrLen-6].level == 'Normal' && parsed[arrLen-7].level == 'Normal' && parsed[arrLen-8].level == 'Normal' && parsed[arrLen-9].level == 'Normal') {
-          window.alert('You got an achievement for entering ten normal readings in a row! Check your achievements page!');
+      // Achievement 2 unlocked. Enter 4 normal readings after an above reading.
+      if (value >= 5 && parsed[arrLen].level == 'Normal' && parsed[arrLen-1].level == 'Normal' && parsed[arrLen-2].level == 'Normal' && parsed[arrLen-3].level == 'Normal' && parsed[arrLen-4].level == 'Above' ) {
+        if (!achNumberArray.includes('2')) {
+          this.pushAlert('You got an achievement for entering four normal readings after being above normal! Check your achievements page!')
           const tempArr = temp2;
-          tempArr.push('5');
+          let tempDate = this.state.formatDate + ', ' + yr + ' ' + currTime
+          let achievementData = {
+            date: tempDate,
+            number: '2'
+          }
+
+          tempArr.push(achievementData);
           AsyncStorage.setItem('achievements', JSON.stringify(tempArr));
         }
+      }
+
+      // Achievement 3 unlocked. Enter 5 normal readings in a row.
+      if (value >= 5) {
+        if (!achNumberArray.includes('3') && parsed[arrLen].level == 'Normal' && parsed[arrLen-1].level == 'Normal' && parsed[arrLen-2].level == 'Normal' && parsed[arrLen-3].level == 'Normal' && parsed[arrLen-4].level == 'Normal') {
+              this.pushAlert('You got an achievement for entering five normal readings in a row! Check your achievements page!');
+              const tempArr = temp2;
+              let tempDate = this.state.formatDate + ', ' + yr + ' ' + currTime
+              let achievementData = {
+                date: tempDate,
+                number: '3'
+              }
+
+              tempArr.push(achievementData);
+              AsyncStorage.setItem('achievements', JSON.stringify(tempArr));
+            }
+
+        // Achievement 4 unlocked. Enter 4 normal readings after being below normal.
+        if (!achNumberArray.includes('4') && parsed[arrLen].level == 'Normal' && parsed[arrLen-1].level == 'Normal' && parsed[arrLen-2].level == 'Normal' && parsed[arrLen-3].level == 'Normal' && parsed[arrLen-4].level == 'Below') {
+              this.pushAlert('You got an achievement for entering four normal readings after being below normal! Check your achievements page!');
+              const tempArr = temp2;
+              let tempDate = this.state.formatDate + ', ' + yr + ' ' + currTime
+              let achievementData = {
+                date: tempDate,
+                number: '4'
+              }
+
+              tempArr.push(achievementData);
+              AsyncStorage.setItem('achievements', JSON.stringify(tempArr));
+            }
+      }
+
+      // Achievement 5 unlocked. Enter 10 normal readings in a row.
+      if (value >= 10) {
+        if (!achNumberArray.includes('5') && parsed[arrLen].level == 'Normal' && parsed[arrLen-1].level == 'Normal' && parsed[arrLen-2].level == 'Normal' && parsed[arrLen-3].level == 'Normal' && parsed[arrLen-4].level == 'Normal' && parsed[arrLen-5].level == 'Normal' && parsed[arrLen-6].level == 'Normal' && parsed[arrLen-7].level == 'Normal' && parsed[arrLen-8].level == 'Normal' && parsed[arrLen-9].level == 'Normal') {
+            this.pushAlert('You got an achievement for entering ten normal readings in a row! Check your achievements page!');
+            const tempArr = temp2;
+            let tempDate = this.state.formatDate + ', ' + yr + ' ' + currTime
+            let achievementData = {
+              date: tempDate,
+              number: '5'
+            }
+
+            tempArr.push(achievementData);
+            AsyncStorage.setItem('achievements', JSON.stringify(tempArr));
+          }
+      }
     }
   }
 
@@ -465,16 +543,30 @@ export default class ReadingScreen extends Component {
     this.refs[fieldName].setNativeProps({text: ''});
   }
 
+  pushAlert(message) {
+    this.setState({
+      alertMessage: message,
+      showAlert: true
+    })
+  }
+
+  hideAlert = () => {
+    this.setState({
+      showAlert: false
+    });
+  };
+
   render () {
     if(Platform.OS === 'android'){
             return (
-      <KeyboardAvoidingView style={styles.safeArea} behavior={null}>
-      
+   <KeyboardAvoidingView style={styles.safeArea} behavior="null">     
       <SafeAreaView style= {styles.safeArea}>
+        <HideWithKeyboard>
         <View>
           <StatusBar barStyle='light-content' hidden= {false}/>
           <Header placement= 'left' centerComponent={{ text: 'Add Reading', placement: 'center', style: { color: '#fff', fontFamily: 'Avenir', fontSize: 20, fontWeight: 'bold' } }} outerContainerStyles={{ backgroundColor: '#21B6A8', height: 60}}/>
         </View>
+        </HideWithKeyboard>        
         <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
           <View style= {styles.background}>
             <HideWithKeyboard>
@@ -556,8 +648,22 @@ export default class ReadingScreen extends Component {
                       </Animatable.View>
                     </TouchableOpacity>
                   </View>
-
                 </View>
+
+                <AwesomeAlert
+                  show={this.state.showAlert}
+                  showProgress={false}
+                  title="Achievement"
+                  message= {this.state.alertMessage}
+                  closeOnTouchOutside={true}
+                  closeOnHardwareBackPress={false}
+                  showCancelButton={true}
+                  cancelText="Close"
+                  onCancelPressed={() => {
+                    this.hideAlert();
+                  }}
+                />
+                
               </View>
             </TouchableWithoutFeedback>
             </SafeAreaView>
@@ -615,7 +721,8 @@ const styles = StyleSheet.create ({
     shadowRadius: 2,
     elevation: 1,
     paddingBottom: 20,
-    justifyContent: 'flex-end'
+    paddingVertical: 20
+    // justifyContent: 'flex-end'
   },
   header: {
     marginTop: 15,
