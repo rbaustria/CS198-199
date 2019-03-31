@@ -9,7 +9,8 @@ import {
   ScrollView,
   Dimensions,
   AsyncStorage,
-  TouchableOpacity
+  TouchableOpacity,
+  Platform
 } from 'react-native';
 
 import { Header } from 'react-native-elements';
@@ -105,7 +106,7 @@ export default class GraphScreen extends Component {
                 <VictoryAxis
                   fixLabelOverlap = {true}
                   style={{
-                    tickLabels: {fontSize: 13, padding: 10}
+                    tickLabels: {fontSize: Platform.OS === 'ios' ? 13 : 10, padding: 10}
                   }}
                   tickValues= {dataValue}
                   tickFormat= {dataX}
