@@ -98,7 +98,7 @@ android {
     buildToolsVersion rootProject.ext.buildToolsVersion
 
     defaultConfig {
-        applicationId "com.sugar"
+        applicationId "com.sugartraces"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
@@ -152,7 +152,6 @@ android {
 }
 
 dependencies {
-    compile project(':react-native-google-fit')
     compile project(':react-native-charts-wrapper')
     compile project(':react-native-vector-icons')
     compile project(':react-native-svg')
