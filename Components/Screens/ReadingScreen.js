@@ -601,6 +601,19 @@ export default class ReadingScreen extends Component {
             </View>
           </View>
         </TouchableWithoutFeedback>
+        <AwesomeAlert
+        show={this.state.showAlert}
+        showProgress={false}
+        title="Achievement"
+        message= {this.state.alertMessage}
+        closeOnTouchOutside={true}
+        closeOnHardwareBackPress={false}
+        showCancelButton={true}
+        cancelText="Close"
+        onCancelPressed={() => {
+          this.hideAlert();
+        }}
+        />
       </SafeAreaView>
       </KeyboardAvoidingView>
     );

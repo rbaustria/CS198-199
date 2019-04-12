@@ -14,7 +14,8 @@ import {
   Keyboard,
   TouchableOpacity,
   TouchableWithoutFeedback,
-  AsyncStorage
+  AsyncStorage,
+  KeyboardAvoidingView,
 } from 'react-native';
 
 import AppleHealthKit from 'rn-apple-healthkit';
@@ -25,6 +26,7 @@ import Screen from './Screen';
 import HomeScreen from './HomeScreen';
 import EditInfoHeader from './EditInfoHeader';
 import Octicons from 'react-native-vector-icons/Octicons.js';
+import HideWithKeyboard from 'react-native-hide-with-keyboard';
 
 const { width: WIDTH } = Dimensions.get('window')
 const key = '@MyApp:key';
@@ -70,7 +72,7 @@ export default class EditInfo extends Component<{}> {
   }
 
   validateName(text) {
-    characters = /^[a-zA-Z]+$/
+    characters = /^[a-zA-Z\s]+$/
     if (characters.test(text) && text != null) {
       this.setState({
         nameValidate: true,
@@ -120,29 +122,31 @@ export default class EditInfo extends Component<{}> {
       }
       else {
         return(
+        <KeyboardAvoidingView style={styles.safeArea} behavior="padding">
         <SafeAreaView style={styles.safeArea}>
             <StatusBar barStyle= 'dark-content' hidden = {false}/>
             <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
               <View style= {styles.inputcontainer}>
                 <View style= {styles.header}>
+                  <HideWithKeyboard>
                   <Text style= {styles.label}>About you</Text>
                   <View style= {styles.iconWarp}>
                     <View style= {styles.container}>
                       <Octicons name='person' {...iconStyles} />
                     </View>
-
                   </View>
-                  
+                  </HideWithKeyboard>
                     <TextInput
                       style= {styles.textinput}
                       onChangeText= {(name) => this.validateName(name)}
                       placeholder= {'Name'}
                       placeholderTextcolor= {'rbga(255,255,255,0.7)'}/>
 
-
+                  <HideWithKeyboard>    
+                     <Text style={{marginTop:40, textAlign:'center'}}>Date of Birth</Text>
                      <DatePicker
                       // Change marginTop to change distance from the textbox
-                      style={{width: 200, marginTop: 50}}
+                      style={{width: 200, marginTop: 0, marginBottom: 90}}
                       date={this.state.androidBirthday}
                       mode="date"
                       placeholder="Date of Birth"
@@ -165,6 +169,8 @@ export default class EditInfo extends Component<{}> {
                       }}
                       onDateChange={(date) => {this.setState({androidBirthday: date})}}
                     />
+                  </HideWithKeyboard>
+                  <HideWithKeyboard>
                       <Picker
                         // Change pickercontainer or picker to change position in Android
                         style = {styles.picker}
@@ -173,18 +179,19 @@ export default class EditInfo extends Component<{}> {
                         <Picker.Item label="Female" value="Female"/>
                         <Picker.Item label="Male" value="Male"/>
                       </Picker>
-
+                  </HideWithKeyboard>
+                  <HideWithKeyboard>
                     <TouchableOpacity style={styles.buttoncontainer} disabled= {!this.state.nameValidate ? true : false} onPress={this.storeDataAndNextScreen.bind(this)}>
                       <View style={styles.button}>
                         <Text style= {styles.buttontext}>DONE</Text>
                       </View>
                     </TouchableOpacity>
-
+                  </HideWithKeyboard>
                 </View>
                 </View>
             </TouchableWithoutFeedback>
         </SafeAreaView>
-
+        </KeyboardAvoidingView>
       );
     }
   }
@@ -292,7 +299,8 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 5 },
     shadowOpacity: 0.8,
     shadowRadius: 2,
-    elevation: 1
+    elevation: 1,
+    marginBottom: 15,
   },
   label: {
     marginTop: 20,
